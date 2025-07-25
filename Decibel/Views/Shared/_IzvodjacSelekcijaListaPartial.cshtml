@@ -1,0 +1,172 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.IdentityModel.Tokens
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject Decibel.Data.ApplicationDbContext DbContext
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var korisnikID = UserManager.GetUserId(HttpContextAccessor.HttpContext.User);
+
+    // Provjerava da li trenutni korisnik je tipa Izvodjac
+    var tip = DbContext.UserRoles.Where(ur => ur.UserId == korisnikID);
+
+    bool jeIzvodjac = !tip.Where(k => k.RoleId == "2").IsNullOrEmpty();
+
+    bool jeAdmin = !tip.Where(k => k.RoleId == "3").IsNullOrEmpty();
+
+    var korisnik = await DbContext.Korisnik.Where(k => k.ID == korisnikID).FirstOrDefaultAsync();
+
+    var user = await DbContext.Users.Where(u => u.Id == korisnikID).FirstOrDefaultAsync();
+}
+
+
+<h4>Izdavač</h4>
+
+<div style="width: 100%;" class="form-group">
+    <h6 style="display: inline;">JA</h6>
+
+    <a href="/Korisnik/Details/@(korisnikID)" target="_blank"><img class="izvodjac-profilna-slika" src=@(korisnik.putanjaProfilneSlike) />@(korisnik.korisnickoIme)</a>
+
+    <td>
+        <a>@(user.Email)</a>
+    </td>
+</div>
+
+<hr />
+
+<h4>Izvođači</h4>
+
+<div style="width: 100%;" class="form-group">
+    <label for="izvodjacSearch">Pretražite Izvođače</label>
+    <input type="text" id="izvodjacSearch" class="form-control" placeholder="Pretražite Izvođače" />
+</div>
+
+<table style="width: 100%;" class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Izvođač</th>
+            <th>Email</th>
+            <th>Akcija</th>
+        </tr>
+    </thead>
+    <tbody id="izvodjacTableBody">
+    </tbody>
+</table>
+
+<div style="width: 100%;" class="form-group mt-3">
+    <label>Izabrani Izvođači:</label>
+    <ul id="selectedIzvodjaciList" class="list-group">
+        @if (jeIzvodjac)
+        {
+            <li class="p-3 list-group-item d-flex justify-content-between align-items-center">
+
+                <a href="/Korisnik/Details/@(korisnikID)" target="_blank"><img class="izvodjac-profilna-slika" src=@(korisnik.putanjaProfilneSlike) />@(korisnik.korisnickoIme)</a>
+
+                <td>
+                    <a>@(user.Email)</a>
+                </td>
+
+                <div class="form-check form-switch">
+                    <input style="transform: scale(1.2);" class="form-check-input" type="checkbox" checked="true" role="switch" id="flex-switch-ja-kao-izvodjac">
+                </div>
+            </li>
+
+            <hr />
+        }
+    </ul>
+</div>
+
+<script>
+    (function() {
+    document.getElementById("izvodjacSearch").addEventListener("input", function () {
+        const searchTerm = this.value;
+
+        fetch(`/Korisnik/Search?query=${searchTerm}`)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById("izvodjacTableBody");
+                tableBody.innerHTML = "";
+
+                data.forEach(izvodjac => {
+                    const row = document.createElement("tr");
+
+                    const nameCell = document.createElement("td");
+                    nameCell.innerHTML = `<a href="/Korisnik/Details/${izvodjac.id}" target="_blank"><img class="izvodjac-profilna-slika" src=${izvodjac.putanjaProfilneSlike}/>${izvodjac.korisnickoIme}</a>`;
+                    row.appendChild(nameCell);
+
+                    const emailCell = document.createElement("td");
+                    emailCell.innerHTML = `<a>${izvodjac.email}</a>`;
+                    row.appendChild(emailCell);
+
+                    const actionCell = document.createElement("td");
+                    const addButton = document.createElement("button");
+                    addButton.type = "button";
+                    addButton.textContent = "+";
+                    addButton.className = "btn btn-primary btn-sm";
+                    addButton.onclick = function () {
+                        addIzvodjacToList(izvodjac, izvodjac.id);
+                    };
+                    actionCell.appendChild(addButton);
+                    row.appendChild(actionCell);
+
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error("Error: ", error));
+    });
+
+
+    const checkbox = document.getElementById('flex-switch-ja-kao-izvodjac');
+    const hiddenInput = document.getElementById('ja-kao-izvodjac');
+
+    if (!checkbox.checked) {
+        hiddenInput.name = '';
+    }
+
+    checkbox.addEventListener('change', function() {
+        hiddenInput.name = this.checked ? 'IzvodjaciIds' : '';
+    });
+
+
+    function addIzvodjacToList(izvodjac, id) {
+        const list = document.getElementById("selectedIzvodjaciList");
+
+        if (Array.from(list.children).some(li => li.dataset.id === id)) {
+            alert("Izvođač je već dodan.");
+            return;
+        }
+
+        const listItem = document.createElement("li");
+        listItem.className = "list-group-item d-flex justify-content-between align-items-center";
+        listItem.innerHTML = `<a href="/Korisnik/Details/${izvodjac.id}" target="_blank"><img class="izvodjac-profilna-slika" src=${izvodjac.putanjaProfilneSlike}/>${izvodjac.korisnickoIme}</a>`;
+        listItem.dataset.id = id;
+        console.log(id);
+
+        const format = document.getElementById("forma");
+
+        const hiddenInput = document.createElement("input");
+        hiddenInput.type = "hidden";
+        hiddenInput.name = "IzvodjaciIds";
+        hiddenInput.value = izvodjac.id;
+        forma.appendChild(hiddenInput);
+
+        const emailCell = document.createElement("td");
+        emailCell.innerHTML = `<a>${izvodjac.email}</a>`;
+        listItem.appendChild(emailCell);
+
+        const removeButton = document.createElement("button");
+        removeButton.textContent = "x";
+        removeButton.type = "button";
+        removeButton.className = "btn btn-danger btn-sm";
+        removeButton.onclick = function () {
+            listItem.remove();
+            hiddenInput.remove();
+        };
+        listItem.appendChild(removeButton);
+
+        list.appendChild(listItem);
+    }
+    })();
+</script>

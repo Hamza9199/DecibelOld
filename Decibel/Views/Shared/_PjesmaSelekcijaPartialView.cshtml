@@ -1,0 +1,147 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.IdentityModel.Tokens
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject Decibel.Data.ApplicationDbContext DbContext
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var korisnikID = UserManager.GetUserId(HttpContextAccessor.HttpContext.User);
+
+    // Provjerava da li trenutni korisnik je tipa Izvodjac
+    var tip = DbContext.UserRoles.Where(ur => ur.UserId == korisnikID);
+
+    bool jeIzvodjac = !tip.Where(k => k.RoleId == "2").IsNullOrEmpty();
+
+    bool jeAdmin = !tip.Where(k => k.RoleId == "3").IsNullOrEmpty();
+
+    var korisnik = await DbContext.Korisnik.Where(k => k.ID == korisnikID).FirstOrDefaultAsync();
+
+    var user = await DbContext.Users.Where(u => u.Id == korisnikID).FirstOrDefaultAsync();
+}
+
+
+<div style="width: 100%;" class="form-group">
+</div>
+
+
+<h4>Pjesme</h4>
+
+<div style="width: 100%;" class="form-group">
+    <label for="pjesmaSearch">Pretražite Pjesme</label>
+    <input type="text" id="pjesmaSearch" class="form-control" placeholder="Pretražite Pjesme" />
+</div>
+
+<table style="width: 100%;" class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Pjesma</th>
+            <th>Album Status</th>
+            <th>Akcija</th>
+        </tr>
+    </thead>
+    <tbody id="pjesmaTableBody">
+    </tbody>
+</table>
+
+<div style="width: 100%;" class="form-group mt-3">
+    <label>Izabrane Pjesme:</label>
+    <ul id="selectedPjesmeList" class="list-group">
+    </ul>
+</div>
+
+<script>
+    (function() {
+        document.getElementById("pjesmaSearch").addEventListener("input", function () {
+            const searchTerm = this.value;
+
+            fetch(`/Pjesma/Search?query=${searchTerm}`)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById("pjesmaTableBody");
+                    tableBody.innerHTML = "";
+
+                    data.forEach(pjesma => {
+                        const row = document.createElement("tr");
+
+                        const nameCell = document.createElement("td");
+                        nameCell.innerHTML = `<a href="/Pjesma/Details/${pjesma.id}" target="_blank">${pjesma.naziv}</a>`;
+                        row.appendChild(nameCell);
+
+                        const albumStatusCell = document.createElement("td");
+
+                        if (typeof pjesma.albumStatus === 'string') {
+                            // If it's a string, the song is not part of an album
+                            albumStatusCell.innerHTML = pjesma.albumStatus;
+                        } else {
+                            // If it's an object, the song is part of an album
+                            albumStatusCell.innerHTML = `<a href="${pjesma.albumStatus.albumLink}" target="_blank">${pjesma.albumStatus.albumName}</a>`;
+                        }
+
+                        row.appendChild(albumStatusCell);
+
+                        const actionCell = document.createElement("td");
+                        const addButton = document.createElement("button");
+                        addButton.type = "button";
+                        addButton.textContent = "+";
+                        addButton.className = "btn btn-primary btn-sm";
+                        addButton.onclick = function () {
+                            addPjesmaToList(pjesma, pjesma.id);
+                        };
+                        actionCell.appendChild(addButton);
+                        row.appendChild(actionCell);
+
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error("Error: ", error));
+        });
+
+        function addPjesmaToList(pjesma, id) {
+            const list = document.getElementById("selectedPjesmeList");
+
+            if (Array.from(list.children).some(li => li.dataset.id === id)) {
+                alert("Pjesma je već dodana.");
+                return;
+            }
+
+            const listItem = document.createElement("li");
+            listItem.className = "list-group-item d-flex justify-content-between align-items-center";
+            listItem.innerHTML = `<a href="/Pjesma/Details/${pjesma.id}" target="_blank">${pjesma.naziv}</a>`;
+            listItem.dataset.id = id;
+
+            const albumStatusCell = document.createElement("td");
+            if (typeof pjesma.albumStatus === 'string') {
+                // If it's a string, the song is not part of an album
+                albumStatusCell.innerHTML = pjesma.albumStatus;
+            } else {
+                // If it's an object, the song is part of an album
+                albumStatusCell.innerHTML = `<a href="${pjesma.albumStatus.albumLink}" target="_blank">${pjesma.albumStatus.albumName}</a>`;
+            }
+            listItem.appendChild(albumStatusCell);
+
+            const format = document.getElementById("forma");
+
+            const hiddenInput = document.createElement("input");
+            hiddenInput.type = "hidden";
+            hiddenInput.name = "PjesmeIds";
+            hiddenInput.value = pjesma.id;
+            forma.appendChild(hiddenInput);
+
+            const removeButton = document.createElement("button");
+            removeButton.textContent = "x";
+            removeButton.type = "button";
+            removeButton.className = "btn btn-danger btn-sm";
+            removeButton.onclick = function () {
+                listItem.remove();
+                hiddenInput.remove();
+            };
+            listItem.appendChild(removeButton);
+
+            list.appendChild(listItem);
+        }
+    })();
+
+</script>
+

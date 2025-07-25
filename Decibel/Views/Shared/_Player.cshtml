@@ -1,0 +1,212 @@
+﻿<style>
+    audio {
+        width: 100%;
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        display: none;
+    }
+
+
+    .player-container {
+        z-index: 999;
+        width: 100%;
+        height: 100px;
+        background: black;
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        gap: 20px;
+        border-top: solid;
+        border-color: rgb(70, 70, 70);
+        border-width: 1px;
+    }
+
+    .lijevo {
+        height: 100%;
+        width: 30%;
+        display: flex;
+        justify-content: start;
+        gap: 10px;
+        align-items: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .sredina {
+        height: 100%;
+        width: 40%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .desno {
+        height: 100%;
+        width: 30%;
+        display: flex;
+        justify-content: end;
+        align-items: center;
+    }
+
+    #detalji-pjesme {
+        height: inherit;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #detalji-pjesme-text {
+        display: flex;
+        flex-direction: column;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+        #detalji-pjesme-text p {
+            margin: 0;
+        }
+
+    #detalji-pjesme > img {
+        height: inherit;
+    }
+
+    #progress, #glasnoca {
+        -webkit-appearance: none;
+        height: 4px;
+        background: rgb(60, 60, 60);
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 10px;
+    }
+
+    #progress {
+        width: 100%;
+    }
+
+        #progress::-webkit-slider-thumb, #glasnoca::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 4px;
+            height: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+
+    #kontrole {
+        display: flex;
+        width: 60%;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    #play-button {
+        font-size: 30px;
+    }
+
+    #glasnoca-ikona {
+        cursor: pointer;
+    }
+
+    #naziv-pjesme a {
+        text-decoration: none;
+        font-weight: bold;
+        color: var(--main-text-boja);
+    }
+
+    #izvodjaci-pjesme a {
+        text-decoration: none;
+        color: rgb(183, 183, 183);
+    }
+
+    .progress-bar-sa-vremenom {
+        display: flex;
+        width: 100%;
+        align-items: center;
+    }
+
+
+
+    #naziv-pjesme a:hover, #izvodjaci-pjesme a:hover {
+        text-decoration: underline;
+    }
+
+
+    #kontrole i {
+        cursor: pointer;
+    }
+
+    #detalji-pjesme img {
+        border-radius: 6px;
+        height: 80px;
+        width: 80px;
+        border-style: solid;
+        border-color: rgb(82, 82, 82);
+    }
+
+    #glasnoca-procenat {
+        margin-right: 10px;
+    }
+
+    #loop-button.active {
+        color: var(--boja-akcenat)
+    }
+</style>
+
+<audio id="audio-player" controls>
+    <source id="izvor" src="" type="audio/mpeg">
+</audio>
+
+<div class="player-container">
+    <div class="lijevo">
+        <div id="detalji-pjesme">
+            <a id="slika-pjesme-lijevo-a" href="/" class="ajax-link"><img id="slika-pjesme-lijevo" style="border-width: 0px !important;" /></a>
+
+            <div id="detalji-pjesme-text">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <i style="cursor: pointer;" id="lajkovano-global" class="fa-regular fa-heart"></i>
+                    <p id="naziv-pjesme"><a class="ajax-link" href="/Pjesma"></a>  </p>
+                </div>
+                <div id="izvodjaci-pjesme"></div>
+
+                <a class="ajax-link" id="odakle-pusta" href=""></a>
+            </div>
+
+        </div>
+    </div>
+    <div class="sredina">
+        <div id="kontrole">
+            <i class="fa-solid fa-shuffle"></i>
+
+            <i class="fa-solid fa-backward" id="prev-tipka"></i>
+
+            <i class="fa-solid fa-play" id="play-button"></i>
+
+            <i class="fa-solid fa-forward" id="next-tipka"></i>
+
+            <i id="loop-button" class="fa fa-repeat"></i>
+
+        </div>
+
+        <div class="progress-bar-sa-vremenom">
+            <code id="trenutno-pjesma">0:00</code>
+            <input id="progress" type="range" value="0" min="0" step="0.1" max="100">
+            <code id="trajanje-pjesme">2:10</code>
+        </div>
+
+    </div>
+    <div class="desno">
+        <code id="glasnoca-procenat">20%</code>
+        <i class="fa-solid fa-volume-high" id="glasnoca-ikona"></i>
+        <input id="glasnoca" type="range" value="20" , min="0" , max="100" , step="1">
+    </div>
+</div>
+

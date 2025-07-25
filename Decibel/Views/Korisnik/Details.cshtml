@@ -1,0 +1,325 @@
+﻿@model Decibel.Models.Korisnik
+
+@{
+    ViewData["Title"] = "Korisnik - Details";
+    var songs = ViewData["Songs"] as List<Decibel.Models.Pjesma> ?? new List<Decibel.Models.Pjesma>();
+    var playlist = ViewData["Playlists"] as List<Decibel.Models.PlayLista> ?? new List<Decibel.Models.PlayLista>();
+    var albumi = ViewData["Albums"] as List<Decibel.Models.Album> ?? new List<Decibel.Models.Album>();
+}
+
+<div>
+    <div class="profile-container">
+        <div class="profile-header">
+            <img class="profile-image" src="@Model.putanjaProfilneSlike" alt="Profilna slika">
+            <div class="profile-info">
+                <h1 class="ime">@Model.ime @Model.prezime</h1>
+                <p class="bio">@Model.bio</p>
+                <span class="status">@Model.statusKorisnika</span>
+                <div class="follow-info">
+                    <span>Pratioci: @Model.brojPratilaca</span>
+                </div>
+                <div class="profile-actions">
+                    <a class="btno" onclick="follow(event, '@Model.ID')">Zaprati</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="naslov">Najpopularnije pjesme od korisnika @Model.korisnickoIme</h2>
+    <div class="song-container">
+        @foreach (var song in songs)
+        {
+            <div class="song-item" data-id="@song.ID" data-naziv="@song.naziv" data-slika="@song.putanjaSlika" data-putanja-audio="@song.putanjaAudio" data-putanja-gif="@song.putanjaGif">
+                <img src="@song.putanjaSlika" class="cover">
+                <div class="song-title">@song.naziv</div>
+            </div>
+        }
+    </div>
+
+    <h2 class="naslov">Najpopularnije playliste od korisnika @Model.korisnickoIme</h2>
+    <div class="song-container">
+        @foreach (var song in playlist)
+        {
+            <div class="playlist-item ajax-link" href="/PlayLista/Details/@song.ID" data-id="@song.ID" data-naziv="@song.naziv" data-slika="@song.putanjaSlika" data-putanja-gif="@song.putanjaGif">
+                <img src="@song.putanjaSlika" class="cover">
+                <div class="song-title">@song.naziv</div>
+            </div>
+        }
+    </div>
+    <h2 class="naslov">Najpopularniji albumi od korisnika @Model.korisnickoIme</h2>
+    <div class="song-container">
+        @foreach (var song in albumi)
+        {
+            <div class="album-item ajax-link" href="/Album/Details/@song.ID" data-id="@song.ID" data-naziv="@song.naziv" data-slika="@song.putanjaSlika" data-putanja-gif="@song.putanjaGif">
+                <img src="@song.putanjaSlika" class="cover">
+                <div class="song-title">@song.naziv</div>
+            </div>
+        }
+    </div>
+    
+
+</div>
+
+<style>
+    .profile-container {
+        position: relative;
+        margin-top: 0px;
+        background-image: url('@Model.putanjaProfilneSlike');
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: 550px ;
+        color: white;
+        height: 550px;
+        width: 1800px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .ime{
+        font-size:30px;
+    }
+
+
+    .profile-header {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    .profile-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid white;
+    }
+
+    .profile-info {
+        color: white;
+    }
+
+    .bio {
+        font-size: 14px;
+        opacity: 0.8;
+    }
+
+    .status {
+        background: #333333;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .follow-info {
+        margin-top: 10px;
+    }
+
+    .profile-actions {
+        margin-top: 10px;
+    }
+
+    .btno {
+        display: inline-block;
+        color: white;
+        background: #333333;
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+        .btno:hover {
+            background: var(--boja-akcenat, #555);
+        }
+
+
+    .song-container {
+        display: flex;
+        overflow-x: auto;
+        gap: 15px;
+        padding: 20px;
+    }
+
+    .song-item {
+        background-color: #1e1e1e;
+        padding: 15px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 290px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+        .song-item:hover {
+            background-color: #2a2a2a;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .song-item.selected {
+            background-color: #282828;
+            box-shadow: 0 4px 15px var(--boja-akcenat);
+        }
+
+    .playlist-item {
+        background-color: #1e1e1e;
+        padding: 15px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 290px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+        .playlist-item:hover {
+            background-color: #2a2a2a;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .playlist-item.selected {
+            background-color: #282828;
+            box-shadow: 0 4px 15px var(--boja-akcenat);
+        }
+
+    .album-item {
+        background-color: #1e1e1e;
+        padding: 15px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 290px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+        .album-item:hover {
+            background-color: #2a2a2a;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .album-item.selected {
+            background-color: #282828;
+            box-shadow: 0 4px 15px var(--boja-akcenat);
+        }
+
+    .cover {
+        width: 250px;
+        height: 250px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    .cover2 {
+        width: 250px;
+        height: 250px;
+        border-radius: 150px;
+        margin-bottom: 10px;
+    }
+
+    .song-title {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+
+    .naslov {
+        text-align: left;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        margin-top: 50px;
+    }
+</style>
+
+
+<script>
+
+        async function follow(event, userId) {
+        event.preventDefault();
+        try {
+            let response = await fetch(`/api/KorisnikControllerAPI/follow/${userId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            let data = await response.json();
+            if (response.ok) {
+                alert("Zapraćen korisnik!");
+                location.reload();
+            } else {
+                alert("Greška: " + data.message);
+            }
+        } catch (error) {
+            console.error("Greška:", error);
+        }
+    }
+
+
+        (function() {
+        const songItems = document.querySelectorAll(".song-item");
+        let selectedSong = null;
+        const playlistItems = document.querySelectorAll(".playlist-item");
+        let selectedPlaylist = null;
+        const izvodacItems = document.querySelectorAll(".izvodac-item");
+        let selectedIzvodac = null;
+        const albumItems = document.querySelectorAll(".album-item");
+        let selectedAlbum = null;
+
+        songItems.forEach(item => {
+            item.addEventListener("click", async () => {
+                if (selectedSong) {
+                    selectedSong.classList.remove("selected");
+                }
+                item.classList.add("selected");
+                selectedSong = item;
+
+                const pjesmaID = item.getAttribute("data-id");
+                try {
+                    const response = await fetch(`/Pjesma/GetPjesmaViewModel/${pjesmaID}`);
+                    if (!response.ok) {
+                        throw new Error(`Greška pri učitavanju pjesme: ${response.status} - ${response.statusText}`);
+                    }
+                    const data = await response.json();
+                    console.log(data);
+                    promjeniPjesmu(data.putanjaAudio, data.putanjaSlika, data.putanjaGif, data.naziv, data.izvodjaci, pjesmaID, data.lajkovana, data.context, data.contextURL);
+                } catch (error) {
+                    console.error("Fetch error:", error);
+                }
+            });
+        });
+
+        playlistItems.forEach(item => {
+            item.addEventListener("click", () => {
+                if (selectedPlaylist) {
+                    selectedPlaylist.classList.remove("selected");
+                }
+                item.classList.add("selected");
+                selectedPlaylist = item;
+            });
+        });
+
+        albumItems.forEach(item => {
+            item.addEventListener("click", () => {
+                if (selectedAlbum) {
+                    selectedAlbum.classList.remove("selected");
+                }
+                item.classList.add("selected");
+                selectedAlbum = item;
+            });
+        });
+    })();
+
+</script>

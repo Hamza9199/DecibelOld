@@ -1,0 +1,11 @@
+﻿@model Decibel.ViewModels.PjesmaListaViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div>
+    <h1>Playlista</h1>
+    
+    @await Html.PartialAsync("_PjesmaPartialView", Model)
+</div>

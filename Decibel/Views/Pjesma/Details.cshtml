@@ -1,0 +1,186 @@
+﻿@model Decibel.ViewModels.PjesmaViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+<style>
+    .komentari {
+        margin-top: 70px;
+        margin-bottom: 30px;
+    }
+
+    .naslov-kom {
+        margin-bottom: 30px;
+    }
+
+    .dugme {
+        background-color: #333;
+        margin-top: 20px;
+    }
+
+    .komici {
+        margin-top: 30px;
+    }
+
+    .list-group-item {
+        border: none;
+    }
+</style>
+
+<div>
+    <div class="row pjesma-detalji">
+        <div class="col-md-6 pjesma-cover-slika-div">
+            <img src="@Model.putanjaSlika" class="cover pjesma-cover-slika">
+
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <a id="pusti-tipka" style="border-radius: 100px; padding: 6px !important;" class="m-2 btn btn-secondary ajax-link ajax-link-no-push"><i style="color: black;" class="fa-solid fa-play play-tipka-pjesma"></i></a>
+            </div>
+
+
+            <p class="mt-3 fs-3" style="font-weight: bold;">@Model.naziv</p>
+
+            @if (Model.albumID != null)
+            {
+                <div style="margin-bottom: 20px;" class="iz-albuma">
+                    <h6>Album</h6>
+                    <a class="fw-bold ajax-link" href="/Album/Details/@(Model.albumID)">@Model.albumIme</a>
+                </div>
+            }
+
+            @if (Model.korisnikID != null)
+            {
+                <div style="margin-bottom: 20px;" class="iz-albuma">
+                    <h6>Izdavač</h6>
+                    <a class="fw-bold ajax-link" href="/Korisnik/Details/@(Model.korisnikID)">@Model.korisnikIme</a>
+                </div>
+            }
+
+            <h6>Izvođači</h6>
+            @await Html.PartialAsync("_IzvodjaciListaPartialView", Model)
+        </div>
+
+        <div class="col-md-6">
+            <h6>Sljedeće</h6>
+            <ul class="track-list list-unstyled">
+            </ul>
+        </div>
+    </div>
+
+    <div class="container komentari">
+        <h2 class="naslov-kom">Komentari</h2>
+        <form id="komentar-form">
+            <input type="hidden" id="korisnikID" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value" />
+            <input type="hidden" id="pjesmaID" value="@Model.ID" />
+            <div class="form-group">
+                <textarea id="tekst" class="form-control" placeholder="Dodaj komentar..." required></textarea>
+            </div>
+            <div class="text-end">
+                <button type="submit" class="btn mt-2 dugme">Komentariši</button>
+            </div>
+        </form>
+        <div class="komici" id="komentari-container" data-pjesma-id="@Model.ID">
+            <ul id="lista-komentara" class="list-group">
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    (function() {
+
+        document.getElementById("pusti-tipka")
+            .addEventListener('click', async (event) => {
+                response = await fetch(`/Pjesma/GetPjesmaViewModel/@(Model.ID)`);
+
+                if (!response.ok) {
+                    throw new Error(`Nije pronađena pjesma: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                console.log(data);
+
+                promjeniPjesmu(data.putanjaAudio, data.putanjaSlika, data.putanjaGIF, data.naziv, data.izvodjaci, pjesmaID, data.lajkovana, context, contextURL, data.prev, data.next);
+            }
+    );
+
+    function ucitajKomentare() {
+        const pjesmaID = document.getElementById("komentari-container").dataset.pjesmaId;
+        const trenutniKorisnikID = document.getElementById("korisnikID").value;
+
+           fetch(`/Komentar/KomentariZaPjesmu?pjesmaID=${pjesmaID}`)
+        .then(response => response.json())
+        .then(data => {
+           // console.log("Primljeni komentari:", data);
+            const listaKomentara = document.getElementById("lista-komentara");
+            listaKomentara.innerHTML = "";
+
+            if (data.length === 0) {
+                listaKomentara.innerHTML = "<p>Još nema komentara. Budi prvi koji će komentarisati!</p>";
+            } else {
+                data.forEach(komentar => {
+                    //.log("Prikazujem komentar:", komentar);
+                    const noviElement = document.createElement("li");
+                    noviElement.classList.add("list-group-item");
+
+                    let akcije = "";
+                    if (komentar.korisnikID === trenutniKorisnikID) {
+                        akcije = `
+                            <a class="ajax-link" href="/Komentar/Edit/${komentar.id}">Uredi</a> |
+                            <a class="ajax-link" href="/Komentar/Delete/${komentar.id}">Obriši</a>
+                        `;
+                    }
+
+                    noviElement.innerHTML = `
+                        <strong>${komentar.korisnickoIme}:</strong> ${komentar.tekst}  <br />
+                        <small>${new Date(komentar.kreiranDatumVrijeme).toLocaleString()}</small>
+                        <div>${akcije}</div>
+                    `;
+                    listaKomentara.appendChild(noviElement);
+                });
+            }
+        })
+        .catch(error => console.error("Greška prilikom učitavanja komentara:", error));
+
+    }
+
+
+    $(document).on("submit", "#komentar-form", async function (e) {
+        e.preventDefault();
+
+        const pjesmaID = $("#pjesmaID").val();
+        const tekst = $("#tekst").val();
+        const korisnikID = $("#korisnikID").val();
+
+        if (!tekst.trim()) {
+            alert("Komentar ne može biti prazan!");
+            return;
+        }
+
+        const response = await fetch("/api/KomentarControllerAPI", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                pjesmaID: pjesmaID,
+                tekst: tekst,
+                korisnikID: korisnikID,
+                kreiranDatumVrijeme: new Date().toISOString(),
+                vrijemePjesmeSekunde: 1,
+            })
+        });
+
+        if (response.ok) {
+            ucitajKomentare();
+            $("#tekst").val("");
+        } else {
+            //alert("Greška prilikom dodavanja komentara!");
+        }
+    });
+
+    ucitajKomentare();
+    document.addEventListener("DOMContentLoaded", ucitajKomentare);
+    })();
+</script>

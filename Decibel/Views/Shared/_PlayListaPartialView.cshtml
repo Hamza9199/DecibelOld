@@ -1,0 +1,196 @@
+﻿@using Decibel.ViewModels
+
+@{
+    var listaTip = ViewData["ListType"]?.ToString();
+}
+
+<div class="playlists-container">
+    <div class="search-bar">
+        <input type="text" id="search" placeholder="Pretraga" onkeyup="filterPlaylists()" />
+    </div>
+
+    @if (ViewData["MojePlayliste"] is List<PlayListaViewModel> mojePlayliste && mojePlayliste.Any())
+    {
+        <h3 class="naslov">Moje Playliste</h3>
+        <div id="playlists" class="playlists-grid" data-playlist-type="moje">
+            @foreach (var playlist in mojePlayliste)
+            {
+                <div class="playlist-item-item">
+                    <div class="playlist-cover">
+                        <a class="ajax-link" href="@(listaTip)@(playlist.ID)"><img src="@playlist.ImageUrl" /></a>
+                    </div>
+                    <div class="playlist-info overflow-ellipsis">
+                        <a class="ajax-link overflow-ellipsis" href="@(listaTip)@(playlist.ID)" id="playlista-naziv-partial">@playlist.Title</a>
+                    </div>
+                    <a style="border-radius: 100px; padding: 10px !important; background-color: #333" class="m-2 btn btn-secondary ajax-link ajax-link-no-push" onclick="obrisi(event, '@playlist.ID')"><i class="fa-sharp fa-solid fa-trash" style="color: #7d3584;"></i></a>
+
+                </div>
+            }
+        </div>
+    }
+
+    @if (ViewData["OmiljenePlayliste"] is List<PlayListaViewModel> omiljenePlayliste && omiljenePlayliste.Any())
+    {
+        <h3 class="naslov">Omiljene Playliste</h3>
+        <div id="playlists" class="playlists-grid" data-playlist-type="omiljene">
+            @foreach (var playlist in omiljenePlayliste)
+            {
+                <div class="playlist-item-item">
+                    <div class="playlist-cover">
+                        <a class="ajax-link" href="@(listaTip)@(playlist.ID)"><img src="@playlist.ImageUrl" /></a>
+                    </div>
+                    <div class="playlist-info overflow-ellipsis">
+                        <a class="ajax-link overflow-ellipsis" href="@(listaTip)@(playlist.ID)" id="playlista-naziv-partial">@playlist.Title</a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (ViewData["Albumi"] is List<PlayListaViewModel> albumi && albumi.Any())
+    {
+        <h3 class="naslov">Moji Albumi</h3>
+        <div id="playlists" class="playlists-grid" data-playlist-type="albumi">
+            @foreach (var playlist in albumi)
+            {
+                <div class="playlist-item-item">
+                    <div class="playlist-cover">
+                        <a class="ajax-link" href="@(listaTip)@(playlist.ID)"><img src="@playlist.ImageUrl" /></a>
+                    </div>
+                    <div class="playlist-info overflow-ellipsis">
+                        <a class="ajax-link overflow-ellipsis" href="@(listaTip)@(playlist.ID)" id="playlista-naziv-partial">@playlist.Title</a>
+                        @if (playlist.Izvodjaci != null && playlist.Izvodjaci.Any())
+                        {
+                            var izvodjaciLinks = string.Join(", ", playlist.Izvodjaci.Select(izvodjac =>
+                            $"<a class=\"ajax-link\" href=\"/Korisnik/Details/{izvodjac.ID}\">{izvodjac.korisnickoIme}</a>"));
+
+                            @Html.Raw(izvodjaciLinks)
+                        }
+                        else
+                        {
+                            <span>Bez Izvođača</span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .naslov {
+        margin-bottom: 40px;
+        margin-top: 20px;
+    }
+
+    #playlista-naziv-partial {
+        font-weight: bold;
+    }
+
+    .search-bar {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    #search {
+        padding: 10px;
+        width: 100%;
+        border: none;
+        border-radius: 5px;
+    }
+
+    .playlists-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .playlist-item-item {
+        overflow: hidden;
+        text-align: start;
+        transition: 0.2s;
+        display: flex;
+        gap: 10px;
+        align-items: start;
+        justify-content: start;
+        flex-direction: column;
+    }
+
+    .playlist-cover {
+        width: 100%;
+    }
+
+        .playlist-cover img {
+            object-fit: cover;
+            width: 100%;
+            object-fit: contain;
+            background: black;
+            border-radius: 4px;
+            border-style: solid;
+            border-width: 1px;
+            border-color: rgb(82, 82, 82);
+        }
+
+    .playlist-item-item a {
+        color: var(--main-text-boja);
+        text-decoration: none;
+    }
+
+        .playlist-item-item a:hover {
+            text-decoration: underline;
+        }
+
+    .playlist-info h3 {
+        margin: 0;
+        font-size: 1.2em;
+    }
+</style>
+
+<script>
+
+     async function obrisi(event, pjesmaID) {
+        event.preventDefault();
+        try {
+            let response = await fetch(`/api/PlayListaControllerAPI/obrisi/${pjesmaID}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            let text = await response.text();
+
+            try {
+                var data = JSON.parse(text);
+            } catch (e) {
+                console.error("Odgovor nije validan JSON:", text);
+                throw new Error("Nevažeći JSON odgovor sa servera");
+            }
+
+            if (response.ok) {
+                alert("Zahtjev odobren!");
+                location.reload();
+            } else {
+                alert("Greška: " + data.message);
+            }
+        } catch (error) {
+            console.error("Greška:", error);
+        }
+    }
+
+
+    function filterPlaylists() {
+        var input = document.getElementById("search").value.toLowerCase();
+        var grids = document.querySelectorAll(".playlists-grid");
+
+        grids.forEach(grid => {
+            var playlists = grid.querySelectorAll(".playlist-item-item");
+            playlists.forEach(playlist => {
+                var title = playlist.querySelector(".playlist-info a").innerText.toLowerCase();
+                var artists = playlist.querySelector(".playlist-info").innerText.toLowerCase();
+                var match = title.includes(input) || artists.includes(input);
+                playlist.style.display = match ? "block" : "none";
+            });
+        });
+    }
+</script>

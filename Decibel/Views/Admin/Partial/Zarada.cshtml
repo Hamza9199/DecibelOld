@@ -1,0 +1,50 @@
+﻿<div id="subscription-doughnut"></div>
+
+<script type="module">
+    (function() {
+    const revenueData = [
+        { type: "Free", value: 30000 },
+        { type: "Premium", value: 70000 }
+    ];
+
+    const doughnutWidth = 400, doughnutHeight = 400, doughnutMargin = 40;
+    const doughnutRadius = Math.min(doughnutWidth, doughnutHeight) / 2 - doughnutMargin;
+
+    const svgDoughnut = d3.select("#subscription-doughnut")
+        .append("svg")
+        .attr("width", doughnutWidth)
+        .attr("height", doughnutHeight)
+        .append("g")
+        .attr("transform", `translate(${doughnutWidth / 2}, ${doughnutHeight / 2})`);
+
+    const colorDoughnut = d3.scaleOrdinal()
+        .domain(revenueData.map(d => d.type))
+        .range(["#FFC107", "#2196F3"]);
+
+    const pieDoughnut = d3.pie()
+        .value(d => d.value);
+
+    const dataDoughnutReady = pieDoughnut(revenueData);
+
+    svgDoughnut.selectAll('path')
+        .data(dataDoughnutReady)
+        .join('path')
+        .attr('d', d3.arc()
+            .innerRadius(doughnutRadius * 0.5) // Inner radius for the doughnut hole
+            .outerRadius(doughnutRadius) // Outer radius
+        )
+        .attr('fill', d => colorDoughnut(d.data.type))
+        .attr("stroke", "white")
+        .style("stroke-width", "2px");
+
+    svgDoughnut.selectAll('text')
+        .data(dataDoughnutReady)
+        .join('text')
+        .text(d => d.data.type)
+        .attr("transform", d => `translate(${d3.arc().innerRadius(doughnutRadius * 0.5).outerRadius(doughnutRadius).centroid(d)})`)
+        .style("text-anchor", "middle")
+        .style("font-size", 12);
+
+    })();
+</script>
+

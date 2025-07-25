@@ -1,0 +1,44 @@
+﻿@model Decibel.Models.PjesmaPlayLista
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>PjesmaPlayLista</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="pjesmaID" class="control-label"></label>
+                <select asp-for="pjesmaID" class ="form-control" asp-items="ViewBag.pjesmaID"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="playlistaID" class="control-label"></label>
+                <select asp-for="playlistaID" class ="form-control" asp-items="ViewBag.playlistaID"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="pokazivacNaSljedecuPjesmuID" class="control-label"></label>
+                <select asp-for="pokazivacNaSljedecuPjesmuID" class ="form-control" asp-items="ViewBag.pokazivacNaSljedecuPjesmuID"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="pokazivacNaPrethodnuPjesmuID" class="control-label"></label>
+                <select asp-for="pokazivacNaPrethodnuPjesmuID" class ="form-control" asp-items="ViewBag.pokazivacNaPrethodnuPjesmuID"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

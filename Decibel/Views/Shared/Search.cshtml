@@ -1,0 +1,148 @@
+﻿@{
+    ViewData["Title"] = "Search";
+}
+
+<div style="display: flex; flex-direction: column; width: 100%;">
+    <!-- Sticky Search Bar with Background and Border Radius -->
+    <div id="search-container" class="input-group rounded text-light p-1" style="position: sticky; top: 0; width: 100%; background: #333; z-index: 999; border-radius: 10px; margin-bottom: 10px;">
+        <input type="text" id="search-input" placeholder="Pretraga" class="form-control" style="height: 40px; border-radius: 10px; background-color: #444; color: white;" />
+    </div>
+</div>
+
+<!-- Search Results Container: Initially Hidden -->
+<div id="search-results" class="container mt-3 pt-3" style="background-color: rgba(0, 0, 0, 0.8); border-radius: 10px; padding: 20px; max-height: 500px; overflow-y: auto; position: fixed; top: 50px; left: 0; width: 100%; height: calc(100% - 50px); z-index: 998; display: none;">
+</div>
+
+<style>
+    #search-results {
+        padding-top: 10px;
+        max-height: 500px;
+        overflow-y: auto;
+        background-color: #333; /* Semi-transparent background */
+        border-radius: 10px;
+        position: fixed;
+        top: 50px; /* Start from 50px below the top of the page */
+        left: 0;
+        width: 100%;
+        height: calc(100% - 50px); /* Full height minus the search bar */
+        z-index: 998; /* Ensure it's below the search bar */
+        padding: 20px;
+    }
+
+    .category {
+        margin-bottom: 15px;
+        background-color: #333;
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+        .category h2 {
+            margin-bottom: 8px;
+            font-size: 16px;
+            color: var(--boja-akcenat);
+        }
+
+        .category ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+            .category ul li {
+                padding: 5px 0;
+                border-bottom: 1px solid #f1f1f1;
+            }
+
+                .category ul li:last-child {
+                    border-bottom: none;
+                }
+
+    /* Add responsive behavior */
+    @@media (min-width: 768px) {
+        #search-results {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .category {
+            flex: 1;
+            min-width: 250px;
+            margin-right: 15px;
+        }
+
+            .category h2 {
+                font-size: 18px;
+            }
+    }
+</style>
+
+<script>
+    (function () {
+        let timeout;
+        document.getElementById('search-input').addEventListener('input', function (e) {
+            clearTimeout(timeout);
+
+            const searchTerm = e.target.value.trim();
+            const resultsContainer = document.getElementById('search-results');
+
+            if (!searchTerm) {
+                resultsContainer.style.display = 'none';  // Hide results when no search term
+                resultsContainer.innerHTML = '';  // Clear previous results
+                return;
+            }
+
+            timeout = setTimeout(function () {
+                fetch(`/api/PjesmaControllerAPI/Pretraga/${encodeURIComponent(searchTerm)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        resultsContainer.style.display = 'block';  // Show results container when there are results
+                        resultsContainer.innerHTML = '';  // Clear previous results
+                        const categories = [
+                            { name: 'Pjesme', items: data.pjesme, urlPrefix: '/Pjesma/Details/' },
+                            { name: 'Korisnici', items: data.korisnici, urlPrefix: '/Korisnik/Details/' },
+                            { name: 'Playliste', items: data.playliste, urlPrefix: '/PjesmaPlayLista/PjesmaPlayLista/' },
+                            { name: 'Albumi', items: data.albumi, urlPrefix: '/Album/Details/' }
+                        ];
+
+                        console.log(data);
+
+                        categories.forEach(category => {
+                            const getItemTextAndUrl = (item) => {
+                                let itemText = '';
+                                let itemUrl = '';
+
+                                if (category.name === 'Korisnici') {
+                                    itemText = item.korisnickoIme;
+                                    itemUrl = `${category.urlPrefix}${encodeURIComponent(item.id)}`;
+                                } else if (category.name === 'Playliste' || category.name === 'Albumi') {
+                                    itemText = item.title;
+                                    itemUrl = `${category.urlPrefix}${encodeURIComponent(item.id)}`;
+                                } else if (category.name === 'Pjesme') {
+                                    itemText = item.naziv;
+                                    itemUrl = `${category.urlPrefix}${encodeURIComponent(item.id)}`;
+                                }
+
+                                return { itemText, itemUrl };
+                            };
+
+                            const categoryHtml = `
+        <div class="category">
+            <h2>${category.name}</h2>
+            <ul>
+                ${category.items.length ? category.items.map(item => {
+                                    const { itemText, itemUrl } = getItemTextAndUrl(item);
+                                    return `<li><a class="ajax-link" href="${itemUrl}">${itemText}</a></li>`;
+                                }).join('') : '...'}
+            </ul>
+        </div>
+    `;
+                            resultsContainer.innerHTML += categoryHtml;
+                        });
+
+
+                    })
+                    .catch(error => console.error('Error fetching search results:', error));
+            }, 500);  // Debounce time
+        });
+    })();
+</script>

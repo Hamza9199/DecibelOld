@@ -1,0 +1,66 @@
+﻿@{
+    var songs = ViewData["Lajkove"] as List<Decibel.Models.Pjesma> ?? new List<Decibel.Models.Pjesma>();
+}
+
+<div id="lajks"></div>
+
+<script type="module">
+    (function() {
+
+    const songData = @Html.Raw(Json.Serialize(songs.Select(x => new { song = x.naziv, streams = x.brojLajkova }).ToList()));
+
+    console.log(songData);    
+
+    const barWidth = 700, barHeight = 400, barMargin = { top: 20, right: 30, bottom: 60, left: 70 };
+
+    const barSvg = d3.select("#lajks")
+        .append("svg")
+        .attr("width", barWidth)
+        .attr("height", barHeight);
+
+    const x = d3.scaleBand()
+        .domain(songData.map(d => d.song))
+        .range([barMargin.left, barWidth - barMargin.right]);
+
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(songData, d => d.streams)])
+        .nice()
+        .range([barHeight - barMargin.bottom, barMargin.top]);
+
+    const maxTextWidth = d3.max(songData, d => {
+        return d3.select("svg").append("text")
+            .text(d.song)
+            .style("font-size", "12px")
+            .style("font-family", "sans-serif")
+            .node().getBBox().width;
+    });
+
+    const paddingRatio = 1.5;
+    const dynamicPadding = maxTextWidth * paddingRatio / barWidth;
+
+    x.padding(dynamicPadding);
+
+    barSvg.append("g")
+        .selectAll("rect")
+        .data(songData)
+        .join("rect")
+        .attr("x", d => x(d.song))
+        .attr("y", d => y(d.streams))
+        .attr("height", d => y(0) - y(d.streams))
+        .attr("width", x.bandwidth())
+        .attr("fill", "#4CAF50");
+
+    barSvg.append("g")
+        .attr("transform", `translate(0,${barHeight - barMargin.bottom})`)
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+        .style("text-anchor", "middle")
+        .attr("transform", "rotate(-45)")
+        .style("font-size", "12px");
+
+    barSvg.append("g")
+        .attr("transform", `translate(${barMargin.left},0)`)
+        .call(d3.axisLeft(y));
+
+    })();
+</script>

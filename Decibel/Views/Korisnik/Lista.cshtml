@@ -1,0 +1,290 @@
+﻿@model IEnumerable<Decibel.Models.Korisnik>
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.IdentityModel.Tokens
+
+@inject Decibel.Data.ApplicationDbContext DbContext
+@inject IHttpContextAccessor HttpContextAccessor
+@inject UserManager<IdentityUser> UserManager
+
+
+@{
+    ViewData["Title"] = "Lista";
+    var korisnici = ViewData["Korisnici"] as List<Decibel.Models.Korisnik> ?? new List<Decibel.Models.Korisnik>();
+
+}
+
+<div>
+    <div>
+        <button class="boj tab-button" onclick="showTab('novi-izvodjaci')">Novi Izvođači</button>
+        <button class="boj tab-button" onclick="showTab('svi-korisnici')">Svi Korisnici</button>
+    </div>
+
+    <div id="novi-izvodjaci" class="tab-content">
+        <h2 class="naslov">Novi Izvođači</h2>
+        <div class="search-bar">
+            <input type="text" id="search-novi" placeholder="Pretraga korisnika" onkeyup="filterUsers('search-novi', 'novi-grid')" />
+        </div>
+        <div class="users-grid" id="novi-grid">
+            @foreach (var korisnik in korisnici)
+            {
+                <div class="user-card">
+                    <div class="user-avatar ajax-link" href="/Korisnik/Details/@korisnik.ID">
+                        <img src="@korisnik.putanjaProfilneSlike" />
+                    </div>
+                    <div class="user-info">
+                        <h5>@korisnik.ime @korisnik.prezime</h5>
+                        <p>@korisnik.bio</p>
+                        <p><strong>Status:</strong> @korisnik.statusKorisnika</p>
+                        <p><strong>Broj pratilaca:</strong> @korisnik.brojPratilaca</p>
+                        <div class="spoj">
+                            <button value="Dozvoli" class="papa" onclick="dozvoli(event, '@korisnik.ID')">Dozvoli</button>
+                            <button value="Odbij" class="papa" onclick="odbij(event, '@korisnik.ID')">Odbij</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+   <div id="svi-korisnici" class="tab-content" style="display: none;">
+    <h2 class="naslov">Svi Korisnici</h2>
+    <div class="search-bar">
+        <input type="text" id="search-svi" placeholder="Pretraga korisnika" onkeyup="filterUsers('search-svi', 'svi-grid')" />
+    </div>
+    <div class="users-grid" id="svi-grid">
+        @foreach (var korisnik in Model)
+        {
+            <div class="user-card ajax-link">
+                <div class="user-avatar ajax-link" href="/Korisnik/Details/@korisnik.ID">
+                    <img src="@korisnik.putanjaProfilneSlike" />
+                </div>
+                <div class="user-info">
+                    <h5>@korisnik.ime @korisnik.prezime</h5>
+                    <p>@korisnik.bio</p>
+                    <p><strong>Status:</strong> @korisnik.statusKorisnika</p>
+                    <p><strong>Broj pratilaca:</strong> @korisnik.brojPratilaca</p>
+
+                        <select onchange="updateStatus(event, '@korisnik.ID')" style="padding: 8px 12px; font-size: 14px; border-radius: 4px;  width: 150px; background-color: #333;">
+                            <option value="">Izaberite status</option>
+
+                            @foreach (var status in Enum.GetValues(typeof(KorisnikStatusEnum)))
+                            {
+
+
+                               @(korisnik.statusKorisnika == (KorisnikStatusEnum)status ? "selected" : "");
+
+                                <option value="@((int)status)" 
+                                        >
+                                    @Enum.GetName(typeof(KorisnikStatusEnum), status)
+                                </option>
+                            }
+                        </select>
+
+
+    
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+</div>
+
+
+<style>
+
+    .papa{
+        background-color: var(--boja-akcenat);
+        padding:8px;
+        border-radius:50px;
+    }
+
+    .spoj{
+        display:flex;
+        justify-content:center;
+        gap:20px;
+    }
+
+    .boj{
+        background-color: var(--boja-akcenat);
+    }
+
+    .naslov{
+        margin-bottom:40px;
+    }
+
+    #search-novi {
+        padding: 10px;
+        width: 100%;
+        border: none;
+        border-radius: 5px;
+    }
+
+    #search-svi {
+        padding: 10px;
+        width: 100%;
+        border: none;
+        border-radius: 5px;
+    }
+
+    .tab-button {
+        margin: 10px;
+        padding: 10px 20px;
+        cursor: pointer;
+        border: none;
+        color: #333;
+        border-radius: 5px;
+    }
+
+        .tab-button:hover {
+            background-color: #0056b3;
+        }
+
+    .tab-content {
+        margin-top: 20px;
+    }
+
+    .search-bar {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .users-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .user-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        border: 1px solid #ddd;
+
+        padding: 20px;
+
+
+        border-radius: 5px;
+        cursor:pointer;
+    }
+
+        .user-card:hover {
+            background: #333;
+        }
+
+    .user-avatar img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 20px;
+    }
+</style>
+
+<script>
+
+     async function updateStatus(event, userId) {
+        const newStatus = event.target.value;
+        
+        try {
+            let response = await fetch(`/api/KorisnikControllerAPI/updateStatus/${userId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            let data = await response.json();
+
+            if (response.ok) {
+                console.log(data);
+                alert("Status je uspešno ažuriran!");
+                location.reload(); 
+            } else {
+                alert("Greška: " + data.message);
+            }
+        } catch (error) {
+            console.error("Greška pri ažuriranju statusa:", error);
+        }
+    }
+
+
+
+    function showTab(tabId) {
+        document.getElementById('novi-izvodjaci').style.display = 'none';
+        document.getElementById('svi-korisnici').style.display = 'none';
+        document.getElementById(tabId).style.display = 'block';
+    }
+     function filterUsers(inputId, gridId) {
+        var input = document.getElementById(inputId).value.toLowerCase();
+        var cards = document.querySelectorAll("#" + gridId + " .user-card");
+        cards.forEach(card => {
+            var name = card.querySelector("h5").innerText.toLowerCase();
+            card.style.display = name.includes(input) ? "block" : "none";
+        });
+    }
+
+    document.getElementById("search-novi").addEventListener("keyup", function() {
+        filterUsers('search-novi', 'novi-grid');
+    });
+
+    document.getElementById("search-svi").addEventListener("keyup", function() {
+        filterUsers('search-svi', 'svi-grid');
+    });
+
+         async function dozvoli(event, userId) {
+        event.preventDefault();
+        try {
+            let response = await fetch(`/api/KorisnikControllerAPI/dozvoli/${userId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            let text = await response.text(); 
+
+            try {
+                var data = JSON.parse(text); 
+            } catch (e) {
+                console.error("Odgovor nije validan JSON:", text);
+                throw new Error("Nevažeći JSON odgovor sa servera");
+            }
+
+            if (response.ok) {
+                alert("Zahtjev odobren!");
+                location.reload();
+            } else {
+                alert("Greška: " + data.message);
+            }
+        } catch (error) {
+            console.error("Greška:", error);
+        }
+    }
+
+
+    async function odbij(event, userId) {
+        event.preventDefault();
+        try {
+            let response = await fetch(`/api/KorisnikControllerAPI/odbij/${userId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            let data = await response.json();
+            if (response.ok) {
+                alert("Zahtjev odbijen!");
+                location.reload(); 
+            } else {
+                alert("Greška: " + data.message);
+            }
+        } catch (error) {
+            console.error("Greška:", error);
+        }
+    }
+
+</script>

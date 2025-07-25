@@ -1,0 +1,192 @@
+﻿@model Decibel.Models.Pjesma
+
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.IdentityModel.Tokens
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject Decibel.Data.ApplicationDbContext DbContext
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var korisnikID = UserManager.GetUserId(HttpContextAccessor.HttpContext.User);
+
+    var tip = DbContext.UserRoles.Where(ur => ur.UserId == korisnikID);
+
+    bool jeIzvodjac = !tip.Where(k => k.RoleId == "2").IsNullOrEmpty();
+
+    bool jeAdmin = !tip.Where(k => k.RoleId == "3").IsNullOrEmpty();
+
+    var korisnik = await DbContext.Korisnik.Where(k => k.ID == korisnikID).FirstOrDefaultAsync();
+
+    var user = await DbContext.Users.Where(u => u.Id == korisnikID).FirstOrDefaultAsync();
+}
+
+@{
+    ViewData["Title"] = "Edit Pjesme";
+
+    var zanrovi = ViewData["Zanr"] as List<Decibel.Models.Zanr> ?? new List<Decibel.Models.Zanr>();
+}
+
+<style>
+    
+
+    @@media (max-width: 3200px) {
+        .kreiraj-pjesmu-div
+
+    {
+        grid-template-columns: repeat(3, minmax(200px, 1fr));
+    }
+
+    }
+
+    @@media (max-width: 2300px) {
+        .kreiraj-pjesmu-div
+
+    {
+        grid-template-columns: repeat(2, minmax(200px, 1fr));
+    }
+
+    }
+
+    @@media (max-width: 1400px) {
+        .kreiraj-pjesmu-div
+
+    {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    }
+</style>
+
+<div>
+    <h1>Edit Pjesme</h1>
+
+    <div class="kreiraj-pjesmu-div">
+        <div style="width: 100%;" id="detalji-pjesme-div">
+            <h4>Detalji Pjesme</h4>
+
+            <form id="forma" asp-action="Edit" enctype="multipart/form-data" style="display: flex; flex-direction: column;">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="naziv" class="control-label"></label>
+                    <input asp-for="naziv" required class="form-control" />
+                    <span asp-validation-for="naziv" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="opis" class="control-label"></label>
+                    <textarea asp-for="opis" class="form-control"></textarea>
+                    <span asp-validation-for="opis" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="datumObjave" class="control-label"></label>
+                    <input asp-for="datumObjave" type="date" required class="form-control" max="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="datumObjave" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="AudioFile" class="control-label"></label>
+                    <input asp-for="AudioFile" type="file" required class="form-control" accept="audio/*" id="audioFileInput" />
+                    <code id="duration"></code>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ImageFile" class="control-label"></label>
+                    <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="GifFile" class="control-label"></label>
+                    <input asp-for="GifFile" type="file" class="form-control" accept="image/*" />
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label">Izaberite Žanr</label>
+                    <select class="form-control" name="ZanrIDs" id="ZanrID">
+                        <option value="">-- Odaberite žanr --</option>
+                        @if (ViewData["Zanr"] is List<Decibel.Models.Zanr> zanrovi2)
+                        {
+                            @foreach (var zanr in zanrovi2)
+                            {
+                                <option value="@zanr.ID">@zanr.naziv</option>
+                            }
+                        }
+                    </select>
+                    <span class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="licenca" class="control-label"></label>
+                    <input asp-for="licenca" required class="form-control" />
+                    <span asp-validation-for="licenca" class="text-danger"></span>
+                </div>
+
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="eksplicitniSadrzaj" />
+                        @Html.DisplayNameFor(model => model.eksplicitniSadrzaj)
+                    </label>
+                </div>
+
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="javno" />
+                        @Html.DisplayNameFor(model => model.javno)
+                    </label>
+                </div>
+
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="slazemSe" required />
+                        <h4>Slažem se</h4>
+                    </label>
+                </div>
+
+                @if (jeIzvodjac)
+                {
+                    <input type="hidden" name="IzvodjaciIds" value="@(korisnikID)" id="ja-kao-izvodjac" />
+                }
+
+                <div class="form-group">
+                    <input type="submit" value="Edit" class="btn btn-primary" form="forma" />
+                </div>
+            </form>
+        </div>
+
+        <div style="width: 100%;" id="dodaj-izvodjace-div">
+            @await Html.PartialAsync("_IzvodjacSelekcijaListaPartial", jeIzvodjac)
+        </div>
+
+        <script>
+            document.getElementById("audioFileInput").addEventListener("change", function (event) {
+                const file = event.target.files[0];
+                if (file && file.type.startsWith('audio/')) {
+                    const audio = new Audio();
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        audio.src = e.target.result;
+                        audio.onloadedmetadata = function () {
+                            const durationInSeconds = audio.duration;
+                            document.getElementById("duration").textContent = `Trajanje: ${durationInSeconds} sekunde`;
+                        };
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    alert("Please select a valid audio file.");
+                }
+            });
+        </script>
+
+    </div>
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+    }
+
+</div>

@@ -1,0 +1,59 @@
+﻿@model Decibel.Models.KorisnikPretplata
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>KorisnikPretplata</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ID" />
+            <div class="form-group">
+                <label asp-for="korisnikID" class="control-label"></label>
+                <select asp-for="korisnikID" class="form-control" asp-items="ViewBag.korisnikID"></select>
+                <span asp-validation-for="korisnikID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="pretplataID" class="control-label"></label>
+                <select asp-for="pretplataID" class="form-control" asp-items="ViewBag.pretplataID"></select>
+                <span asp-validation-for="pretplataID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PretplataStatus" class="control-label"></label>
+                <select asp-for="PretplataStatus" class="form-control"></select>
+                <span asp-validation-for="PretplataStatus" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="kreiranDatumVrijeme" class="control-label"></label>
+                <input asp-for="kreiranDatumVrijeme" class="form-control" />
+                <span asp-validation-for="kreiranDatumVrijeme" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="datumVrijemeObnove" class="control-label"></label>
+                <input asp-for="datumVrijemeObnove" class="form-control" />
+                <span asp-validation-for="datumVrijemeObnove" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="datumIsteka" class="control-label"></label>
+                <input asp-for="datumIsteka" class="form-control" />
+                <span asp-validation-for="datumIsteka" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

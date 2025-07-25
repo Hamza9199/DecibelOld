@@ -1,0 +1,45 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.EntityFrameworkCore
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject Decibel.Data.ApplicationDbContext DbContext
+@inject IHttpContextAccessor HttpContextAccessor
+
+<ul class="navbar-nav">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            @{
+                var korisnikID2 = UserManager.GetUserId(HttpContextAccessor.HttpContext.User);
+
+                var imaPretplatu2 = !string.IsNullOrEmpty(korisnikID2) &&
+                await DbContext.KorisnikPretplata.AnyAsync(kp => kp.Korisnik.ID == korisnikID2);
+                if (!imaPretplatu2)
+                {
+                    <a class="nav-link ajax-link" asp-area="" asp-controller="KorisnikPretplata" asp-action="Create">Pretplata</a>
+                }
+            }
+
+        </li>
+        <li class="nav-item">
+            <a class="nav-link ajax-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
+        </li>
+        <li class="nav-item">
+            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                <button type="submit" class="nav-link btn btn-link">Logout</button>
+
+            </form>
+        </li>
+       
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        </li>
+    }
+</ul>

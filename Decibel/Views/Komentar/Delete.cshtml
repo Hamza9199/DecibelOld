@@ -1,0 +1,36 @@
+﻿@model Decibel.Models.Komentar
+
+@{
+    ViewData["Title"] = "Delete Comment";
+}
+
+<div>
+    <h1>Brisanje komentara</h1>
+
+    <div>
+        <h4>Detalji</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-3">Tekst</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.tekst)</dd>
+
+            <dt class="col-sm-3">Kreiran</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.kreiranDatumVrijeme)</dd>
+
+            <dt class="col-sm-3">Korisnik</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Korisnik.ime)</dd>
+
+            <dt class="col-sm-3">Pjesma</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Pjesma.naziv)</dd>
+        </dl>
+
+        <form asp-action="Delete" asp-route-id="@Model.ID">
+            <input type="hidden" asp-for="ID" />
+
+            <div class="mt-3">
+                <input type="submit" value="Obrisi" class="btn btn-danger" />
+                <a href="@Url.Action("Details", "Pjesma", new { id = Model.pjesmaID })" class="btn btn-secondary ajax-link">Odustani</a>
+            </div>
+        </form>
+    </div>
+</div>

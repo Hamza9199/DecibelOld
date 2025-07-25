@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/procedure/automatizacija.sql" dialect="TSQL" />
+    <file url="file://$PROJECT_DIR$/procedure/generisi_role.sql" dialect="TSQL" />
+    <file url="file://$PROJECT_DIR$/procedure/get_redoslijed_pjesama.sql" dialect="TSQL" />
+    <file url="file://$PROJECT_DIR$/procedure/obrisi_pjesmu.sql" dialect="TSQL" />
+    <file url="file://$PROJECT_DIR$/procedure/prebroj_pjesme.sql" dialect="TSQL" />
+    <file url="file://$PROJECT_DIR$/procedure/promjeni_redoslijed.sql" dialect="TSQL" />
+    <file url="file://$PROJECT_DIR$/procedure/statistika.sql" dialect="TSQL" />
+  </component>
+</project>

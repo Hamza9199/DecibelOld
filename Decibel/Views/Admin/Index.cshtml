@@ -1,0 +1,26 @@
+﻿<h1>Statistika</h1>
+<div style="display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
+">
+    <div>
+        <h3>Broj Lajkova Top 10 Pjesama</h3>
+        @await Html.PartialAsync("~/Views/Admin/Partial/_Graf.cshtml")
+    </div>
+    <div>
+        <h3>Broj Reprodukcije Top 10 Pjesama</h3>
+        @await Html.PartialAsync("~/Views/Admin/Partial/TopPjesme.cshtml")
+    </div>
+    @*
+    <div>
+        @await Html.PartialAsync("~/Views/Admin/Partial/_Pie.cshtml")
+    </div>
+        <div>
+        @await Html.PartialAsync("~/Views/Admin/Partial/Zarada.cshtml")
+    </div>
+    *@
+    <div>
+        <h3>Top 10 Najzapračenijih Korisnika</h3>
+        @await Html.PartialAsync("~/Views/Admin/Partial/Engagement.cshtml")
+    </div>
+</div>
+

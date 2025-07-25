@@ -1,0 +1,64 @@
+﻿@model Decibel.Models.HistorijaSlusanja
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>HistorijaSlusanja</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ID" />
+            <div class="form-group">
+                <label asp-for="korisnikID" class="control-label"></label>
+                <select asp-for="korisnikID" class="form-control" asp-items="ViewBag.korisnikID"></select>
+                <span asp-validation-for="korisnikID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="pjesmaID" class="control-label"></label>
+                <select asp-for="pjesmaID" class="form-control" asp-items="ViewBag.pjesmaID"></select>
+                <span asp-validation-for="pjesmaID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="playlistaID" class="control-label"></label>
+                <select asp-for="playlistaID" class="form-control" asp-items="ViewBag.playlistaID"></select>
+                <span asp-validation-for="playlistaID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="kreiranDatumVrijeme" class="control-label"></label>
+                <input asp-for="kreiranDatumVrijeme" class="form-control" />
+                <span asp-validation-for="kreiranDatumVrijeme" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="trajanje" class="control-label"></label>
+                <input asp-for="trajanje" class="form-control" />
+                <span asp-validation-for="trajanje" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="kontekstPustanja" class="control-label"></label>
+                <select asp-for="kontekstPustanja" class="form-control"></select>
+                <span asp-validation-for="kontekstPustanja" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="offline" /> @Html.DisplayNameFor(model => model.offline)
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

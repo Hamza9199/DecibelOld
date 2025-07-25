@@ -1,0 +1,49 @@
+﻿@model Decibel.Models.Pretplata
+
+@{
+    ViewData["Title"] = "Detalji pretplate";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded">
+        <div class="card-header bg-primary text-white text-center py-3">
+            <h3 class="mb-0">Detalji pretplate</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 text-center">
+                    <img src="https://thumbs.dreamstime.com/b/stylish-red-premium-text-dark-background-stylish-red-premium-text-dark-background-331062804.jpg" class="img-fluid rounded shadow-sm" alt="Pretplata">
+                </div>
+                <div class="col-md-8">
+                    <dl class="row">
+                        <dt class="col-sm-4 font-weight-bold">@Html.DisplayNameFor(model => model.naziv)</dt>
+                        <dd class="col-sm-8 text-muted">@Html.DisplayFor(model => model.naziv)</dd>
+
+                        <dt class="col-sm-4 font-weight-bold">@Html.DisplayNameFor(model => model.opis)</dt>
+                        <dd class="col-sm-8 text-muted">@Html.DisplayFor(model => model.opis)</dd>
+
+                        <dt class="col-sm-4 font-weight-bold">@Html.DisplayNameFor(model => model.cijena)</dt>
+                        <dd class="col-sm-8 text-muted">@Html.DisplayFor(model => model.cijena) KM</dd>
+
+                        <dt class="col-sm-4 font-weight-bold">@Html.DisplayNameFor(model => model.kreiranDatumVrijeme)</dt>
+                        <dd class="col-sm-8 text-muted">@Model.kreiranDatumVrijeme.ToString("dd.MM.yyyy HH:mm")</dd>
+                    </dl>
+
+                    <h5 class="mt-3">Šta dobijate:</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">🎵 Neograničeno slušanje muzike</li>
+                        <li class="list-group-item">📥 Offline preuzimanje</li>
+                        <li class="list-group-item">🔊 Visok kvalitet zvuka</li>
+                        <li class="list-group-item">🚫 Bez reklama</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer text-center bg-dark">
+            <div class="d-flex justify-content-center gap-3">
+                <a class="btn btn-danger px-4 py-2 rounded-pill shadow-sm" asp-action="Delete" asp-route-id="@Model?.ID">Otkaži pretplatu</a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,37 @@
+﻿@model Decibel.Models.Komentar
+
+@{
+    ViewData["Title"] = "Edit Comment";
+}
+
+<div>
+    <h1>Uređivanje komentara</h1>
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-action="Edit" asp-route-id="@Model.ID">
+                <input type="hidden" asp-for="ID" />
+                <input type="hidden" asp-for="pjesmaID" />
+                <input type="hidden" asp-for="korisnikID" />
+
+
+                <div class="form-group">
+                    <label asp-for="tekst" class="control-label"></label>
+                    <textarea asp-for="tekst" class="form-control"></textarea>
+                    <span asp-validation-for="tekst" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mt-3">
+                    <input type="submit" value="Sačuvaj" class="btn btn-danger" />
+                    <a href="@Url.Action("Details", "Pjesma", new { id = @Model.pjesmaID })" class="btn btn-secondary ajax-link">Odustani</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

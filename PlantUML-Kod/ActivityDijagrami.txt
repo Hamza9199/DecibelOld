@@ -1,0 +1,475 @@
+1. Vrši Registraciju i Prijavu
+
+@startuml
+|Korisnik|
+start
+
+:Unosi\npodatke\nza prijavu/\nregistraciju;
+
+|Sistem|
+if (Račun\npostoji?) then (Da)
+  :Autentifikacija\nkorisnika;
+  if (Podaci\nispravni?) then (Da)
+    :Omogućava\npristup\nplatformi;
+  else (Ne)
+    :Prikazuje\nporuku\no nevažećoj\nprijavi;
+  endif
+else (Ne)
+  :Prikazuje\nobrazac\nza registraciju;
+|Korisnik|
+  :Unosi\ndodatne\ninformacije\nza registraciju;
+  :Šalje\nobrazac\nza registraciju;
+  |Sistem|
+  if (Podaci\nvalidni?) then (Da)
+    :Kreira\nkorisnički\nračun;
+    :Omogućava\npristup\nplatformi;
+  else (Ne)
+    :Prikazuje\nporuku\no grešci;
+  endif
+endif
+
+stop
+@enduml
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+2. Upravlja Računom
+
+@startuml
+|Korisnik|
+start
+
+:Odabir opcije\n(upravljanje\nračunom);
+
+note
+Korisnik je već
+uspješno prijavljen
+endnote
+
+|Sistem|
+:Prikazuje\nizbornik\nupravljanja\nračunom;
+
+|Korisnik|
+:Odabir opcije\n(promjena lozinke,\nupdate podataka,\nbrisanje računa);
+
+|Sistem|
+if (Promjena\nlozinke?) then (Da)
+  :Unos nove\nlozinke uz\nstaru lozinku;
+  :Potvrda nove\nlozinke;
+  :Spremanje nove\nlozinke;
+else (Ne)
+  if (Update\npodataka?) then (Da)
+    :Unos novih\npodataka (email,\nime, itd.);
+    :Spremanje novih\npodataka;
+  else (Ne)
+    if (Brisanje\nračuna?) then (Da)
+      :Potvrda brisanja\nračuna;
+      :Brisanje računa\ndatoteka i\ninformacija;
+      :Prikaz poruke\no uspješnom\nbrisanja računa;
+    endif
+  endif
+endif
+
+stop
+@enduml
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+3. Upravlja Pretplatom
+
+@startuml
+|Korisnik|
+start
+
+:Navigacija do\nupravljanje\npretplatom;
+
+note
+Korisnik je već
+uspješno prijavljen
+endnote
+
+:Provjera\nstatusa\npretplate;
+
+|Sistem|
+if (Nema aktivnu\npretplatu?) then (Da)
+  :Prikazuje info\no Premium\npretplati;
+  |Korisnik|
+  :Unos \npodataka\nza plaćanje;
+  |Sistem|
+  :Preusmjeravanje\nna eksterne\nAPI-je za\nplaćanje;
+  if (Uspješno\nplaćanje?) then (Da)
+    :Aktivira\nPremium\npretplatu;
+    :Prikazuje\npotvrdu o\naktivaciji;
+  else (Ne)
+    :Prikazuje\nporuku o\ngrešci pri\nplaćanju;
+  endif
+else (Ne)
+  :Prikazuje status\npretplate;
+  |Korisnik|
+  :Odabir opcije\nza uklanjanje\nplaćanja;
+
+  |Sistem|
+  :Deaktivira\nPremium\npretplatu;
+  :Prikazuje\npotvrdu o\notkazivanju;
+endif
+|Korisnik|
+stop
+@enduml
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+4. Sluša Muziku (Streaming Muzike)
+
+@startuml
+|Korisnik|
+start
+
+:Navigacija do\nsekcije za\nmuziku;
+
+note
+Korisnik je već
+uspješno prijavljen
+endnote
+
+|Sistem|
+if (Korisnik ima\nPremium\npretplatu?) then (Da)
+  :Prikazuje\nbiblioteku\nmuzike;
+  |Korisnik|
+  :Pretraživanje\nPjesama\nAlbuma\nPlaylisti;
+  :Odabir\npjesme za\nreprodukciju;
+
+  |Sistem|
+  :Pokreće\nstreaming\npjesme;
+  :Prikazuje\nkontrole za\nreprodukciju;
+  
+  |Korisnik|
+  repeat
+    :Koristi kontrole:\nPlay, Pauza,\nPreskoči, Stop\nKontrola Glasnoče;
+  repeat while (Pjesma nije\nzaustavljena)
+
+  if (Kraj pjesme?) then (Da)
+    :Pokreće sljedeću\npjesmu na listi;
+  else (Ne)
+    :Pjesma završena;
+  endif
+  
+note
+Kraj pjesme:
+Kada pjesma završi,
+automatski se pokreće
+sljedeća pjesma na listi
+ili se zaustavlja
+reprodukcija.
+endnote
+
+stop
+
+else (Ne)
+  :Prikazuje poruku\n"Potrebna\npretplata za\nslušanje muzike";
+endif
+|Korisnik|
+stop
+@enduml
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+5. Ostavlja Komentare
+
+@startuml
+|Korisnik|
+start
+
+:Navigacija do\nstranice pjesme;
+
+note
+Korisnik je već
+uspješno prijavljen
+endnote
+
+|Sistem|
+if (Korisnik ima\nPremium\npretplatu?) then (Da)
+  :Prikazuje stranicu\npjesme;
+  |Korisnik|
+  :Unos komentara;
+  :Odabir vremena\nna pjesmi gdje\nće biti\nostavljen komentar;
+
+  |Sistem|
+  :Validacija komentara;\n"Je li komentar\nneprikladan?";
+
+note
+  Validacija koristi regex:
+  - Maksimalno 300 znakova
+  - Nema uvredljivih izraza
+end note
+
+  if (Validan komentar?) then (Da)
+    :Spremanje komentara\nu bazu podataka;
+    :Prikazivanje\nkomentara na\npjesmi;
+  else (Ne)
+    :Prikazuje poruku\n"Komentar\nnije prihvaćen";
+  endif
+else (Ne)
+  :Prikazuje poruku\n"Potrebna\npretplata za\nostavljanje\nkomentara";
+endif
+|Korisnik|
+stop
+@enduml
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+6. Vrši Interakciju sa Muzikom
+
+@startuml
+|Korisnik|
+start
+
+:Odabir pjesme\nili albuma;
+
+note
+Korisnik je već
+uspješno prijavljen
+i premium pretplatnik 
+endnote
+
+|Sistem|
+:Prikazuje pjesmu\nili album za\ninterakciju;
+
+|Korisnik|
+if (Dodavanje\nu playlistu?) then (Da)
+  :Odabir postojeće\nplayliste ili\nkreiranje nove;
+  :Dodavanje pjesme\nu playlistu;
+else (Ne)
+  if (Stavljanje\nLike-a?) then (Da)
+    :Klik na\nLike;
+  else (Ne)
+    if (Komentarisanje?) then (Da)
+      :Unos komentara;
+      :Šalje komentar;
+    endif
+  endif
+endif
+
+stop
+@enduml
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+7. Upravlja svojom postavljenom Muzikom (Postavlja i Ažurira)
+
+@startuml
+|Korisnik|
+start
+
+:Upload pjesme/albuma\nza postavljanje;
+
+note
+Korisnik je već
+uspješno prijavljen
+i ima status
+izvođača
+endnote
+
+|Sistem|
+:Prikazuje obrazac\nza dodavanje\nsuradnika;
+
+|Korisnik|
+:Unosi podatke za\nsuradnike (ime, uloga\numjetnika, producenta, itd.);
+
+:Definisanje\nudjela u prihodima\npo suradniku;
+
+|Sistem|
+:Provjera\nregistrovanih\nsuradnika;
+
+|Korisnik|
+if (Suradnik registriran?) then (Da)
+  :Dodavanje suradnika\nautomatski povezuje\nračun suradnika sa\npjesmom nakon\nšto suradnik\npristane putem\nemaila;
+else (Ne)
+  :Šalje verifikacijski\nemail suradniku;
+  :Ako suradnik nije\nregistrovan, platforma\nkreira njegov račun;
+  :Povezivanje suradnika\nsa pjesmom kada\non potvrdi račun;
+endif
+
+|Sistem|
+:Spremanje pjesme\nsa svim suradnicima\ni metapodacima;
+
+|Sistem|
+:Šalje pjesmu/album\nadministratoru na\npreslušavanje i\nprovjeru prije objave>
+
+stop
+@enduml
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+8. Pregleda Muziku prije Javne Objave
+
+@startuml
+|Administrator|
+start
+
+:Navigacija do\nstranice za provjeru\npjesme/albuma\nprije javne objave;
+
+note
+  Administrator je
+  uspješno prijavljen
+  na platformu
+endnote
+
+|Sistem|
+:Prikaz pjesama/albuma\nkoje se čekaju na\npreslušavanje;
+
+|Administrator|
+:Odabir pjesme/albumu\nkoji treba preslušati;
+
+:Preslušava pjesmu/album;
+
+if (Pjesma/album\nodobren?) then (Da)
+  :Objavljuje pjesmu/album\nna platformi;
+  
+else (Ne)
+  :Obavještava korisnika\nza odbijenu pjesmu/album\nputem emaila;
+  
+endif
+
+stop
+@enduml
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+9. Pregleda Korisničke Račune
+
+@startuml
+|Administrator|
+start
+
+:Navigacija do\nstranice za pregled\nKorisničkih Računa;
+
+note
+  Administrator je
+  uspješno prijavljen
+  na platformu
+endnote
+
+|Sistem|
+:Prikaz liste korisničkih\nračuna na platformi;
+
+|Administrator|
+:Pregleda korisničke\nračune;
+
+:Odabir korisničkog\nračuna za detalje;
+
+|Sistem|
+:Prikazuje detalje o\nodabranom korisniku;
+
+|Administrator|
+:Izbor akcije (blokiranje\nkorišćenja, obavijesti,\npravljenje izmjena);
+
+if (Akcija blokiranja?) then (Da)
+  :Blokira korisnički\nračun;
+ 
+else (Ne)
+  :Izvršava drugu akciju;
+endif
+
+stop
+@enduml
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+10. Pregleda Statistiku i Analitiku
+
+@startuml
+|Administrator|
+start
+
+:Navigacija do\nstranice za pregled\Statiskike i Analitike;
+
+note
+  Administrator je
+  uspješno prijavljen
+  na platformu
+endnote
+
+|Sistem|
+:Prikaz statistike i\nanalitike platforme;
+
+|Administrator|
+:Pregleda ključne statistike:\nbroj korisnika, broj pjesama,\nprihodi, najposjećenije pjesme;
+
+|Sistem|
+:Prikazuje detalje:\nukupni prihodi, broj stream-ova,\ntop korisnici, top pjesme,\ntrendi, demografski podaci;
+
+|Administrator|
+:Izbor filtera za specifične analize:\npo vremenskim periodima (dnevno,\nmjesečno, godišnje),\ntop listama, prihodima po regijama;
+
+|Sistem|
+:Generira izvještaj na osnovu\nfiltriranih podataka;
+
+|Administrator|
+:Pregleda generirani izvještaj;
+
+:Preuzima izvještaj u formatu CSV;
+
+stop
+@enduml
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+11.
+
+@startuml
+|Administrator|
+start
+
+:Navigacija do\nstranica za prijavu\nAdministratora;
+
+:Unosi podatke za\nprijavu (email i\nlozinka);
+
+|Sistem|
+:Provjera podataka\nza prijavu;
+
+if (Podaci ispravni?) then (Da)
+  :Autentifikacija administratora;
+  :Omogućava pristup\nadministratorskoj\nplatformi;
+else (Ne)
+  :Prikazuje poruku\n o grešci\nza prijavu;
+endif
+
+:Prikaz administratorske\nplatforme;
+stop
+@enduml
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+12.
+
+@startuml
+|Korisnik|
+start
+
+:Navigacija do stranice\nza izvođače;
+
+:Podnosi zahtjev\nza status izvođača;
+
+note
+Korisnik je već
+uspješno prijavljen
+endnote
+
+|Sistem|
+:Prikazuje obrazac\nza izvođače;
+
+|Korisnik|
+:Unosi potrebne\ninformacije\n(identitet,\nlinkovi,\ni izdavačka kuća\nako postoji);
+
+|Sistem|
+:Pregled podataka\ni verifikacija;
+
+if (Podaci\nispravni?) then (Da)
+  :Dodjeljuje status\nizvođača korisniku;
+  :Omogućava alate\nza prijenos muzike;
+else (Ne)
+  :Traži dodatne\ninformacije;
+endif
+
+stop
+@enduml

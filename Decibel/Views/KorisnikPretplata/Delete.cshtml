@@ -1,0 +1,55 @@
+﻿@model Decibel.Models.KorisnikPretplata
+
+@{
+    ViewData["Title"] = "Otkaži pretplatu";
+}
+
+<div class="container">
+    <h1 class="text-center text-light mb-4">Otkaži pretplatu</h1>
+
+    <h3 class="text-center mt-3 text-light">Jeste li sigurni da želite otkazati pretplatu?</h3>
+    <p class="text-center text-muted">Ako nastavite, izgubit ćete sve pogodnosti pretplate.</p>
+
+    <div class="card shadow-lg border-0 rounded mt-4 bg-dark text-light">
+        <div class="card-header text-center py-3">
+            <h3 class="mb-0">@Html.DisplayFor(model => model.Pretplata.naziv)</h3>
+        </div>
+
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-4 font-weight-bold">Korisničko ime:</dt>
+                <dd class="col-sm-8 text-muted">@Html.DisplayFor(model => model.Korisnik.korisnickoIme)</dd>
+
+                <dt class="col-sm-4 font-weight-bold">Status pretplate:</dt>
+                <dd class="col-sm-8 text-muted">@Html.DisplayFor(model => model.PretplataStatus)</dd>
+
+                <dt class="col-sm-4 font-weight-bold">Datum kreiranja:</dt>
+                <dd class="col-sm-8 text-muted">@Model.kreiranDatumVrijeme.ToString("dd.MM.yyyy HH:mm")</dd>
+
+                <dt class="col-sm-4 font-weight-bold">Datum isteka:</dt>
+                <dd class="col-sm-8 text-muted">@Model.datumIsteka.ToString("dd.MM.yyyy HH:mm")</dd>
+            </dl>
+
+            <h5 class="mt-3 text-light">Ako otkažete pretplatu, izgubit ćete:</h5>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item bg-dark text-light">🎵 Neograničeno slušanje muzike</li>
+                <li class="list-group-item bg-dark text-light">🔊 Visok kvalitet zvuka</li>
+                <li class="list-group-item bg-dark text-light">🚫 Iskustvo bez reklama</li>
+            </ul>
+        </div>
+
+        <div class="card-footer text-center bg-dark">
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="ID" />
+                <button type="submit" class="bac btn btn-danger px-4 py-2 rounded-pill shadow-sm">Da, otkaži pretplatu</button>
+                <a href="/KorisnikPretplata/Details/@Model.korisnikID" class="btn btn-secondary px-4 py-2 rounded-pill shadow-sm">Ne, zadrži pretplatu</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bac {
+        background-color: var(--boja-akcenat);
+    }
+</style>

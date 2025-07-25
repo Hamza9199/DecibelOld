@@ -1,0 +1,81 @@
+﻿@model Decibel.Models.KorisnikPretplata
+
+@{
+    ViewData["Title"] = "Detalji Pretplate";
+}
+
+@if (Model?.Pretplata != null)
+{
+    <div class="container">
+        <h1 class="text-center mb-4">Detalji vaše pretplate</h1>
+
+        <div class="card shadow-lg border-0 rounded">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <h3 class="mb-0">@Html.DisplayFor(model => model.Pretplata.naziv)</h3>
+            </div>
+
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <img src="https://www.billboard.com/wp-content/uploads/media/streaming-illustration-v-2019-billboard-1548.jpg" class="img-fluid rounded shadow-sm" alt="Pretplata">
+                    </div>
+                    <div class="col-md-8">
+                        <dl class="row">
+                            <dt class="col-sm-4 font-weight-bold">Korisničko ime:</dt>
+                            <dd class="col-sm-8 text-muted">@Html.DisplayFor(model => model.Korisnik.korisnickoIme)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Status pretplate:</dt>
+                            <dd class="col-sm-8 text-muted">@Html.DisplayFor(model => model.PretplataStatus)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Datum kreiranja:</dt>
+                            <dd class="col-sm-8 text-muted">@Model.kreiranDatumVrijeme.ToString("dd.MM.yyyy HH:mm")</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Datum obnove:</dt>
+                            <dd class="col-sm-8 text-muted">@Model.datumVrijemeObnove.ToString("dd.MM.yyyy HH:mm")</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Datum isteka:</dt>
+                            <dd class="col-sm-8 text-muted">@Model.datumIsteka.ToString("dd.MM.yyyy HH:mm")</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Opis:</dt>
+                            <dd class="col-sm-8 text-muted">@Html.DisplayFor(model => model.Pretplata.opis)</dd>
+
+                            <dt class="col-sm-4 font-weight-bold">Cijena:</dt>
+                            <dd class="col-sm-8 text-muted">@Html.DisplayFor(model => model.Pretplata.cijena) KM</dd>
+                        </dl>
+
+                        <h5 class="mt-3">Šta dobijate:</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">🎵 Neograničeno slušanje muzike</li>
+                            <li class="list-group-item">🔊 Visok kvalitet zvuka</li>
+                            <li class="list-group-item">🚫 Bez reklama</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer text-center bg-dark">
+                <div class="d-flex justify-content-center gap-3">
+                    <a class="bac btn btn-danger px-4 py-2 rounded-pill shadow-sm ajax-link" asp-action="Delete" asp-route-id="@Model?.ID">Otkaži pretplatu</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3 text-center">
+            <a href="/" class="bac btn btn-secondary px-4 py-2 rounded-pill shadow-sm ajax-link">Nazad na početnu</a>
+        </div>
+    </div>
+}
+else
+{
+    <p class="text-danger text-center mt-4">Podaci o pretplati nisu dostupni.</p>
+    <div class="text-center">
+        <a href="/KorisnikPretplata/Create" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">Kreirajte novu pretplatu</a>
+    </div>
+}
+
+
+<style>
+    .bac {
+        background-color: var(--boja-akcenat);
+    }
+</style>

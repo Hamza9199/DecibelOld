@@ -1,0 +1,32 @@
+@startuml
+left to right direction
+
+node "Klijent" as client {
+    [Web-preglednik] <<executionEnvironment>>
+    artifact "index.cshtml" <<artifact>>
+}
+
+node "Web-server" as server {
+    component "Frontend" as frontend <<component>> {
+        [C#/HTML/CSS/JS] <<deployment spec>>
+    }
+    component "Backend" as backend <<component>> {
+        [C#] <<deployment spec>>
+    }
+    component "Baza Podataka" as db <<component>> {
+        [MS SQL Server] <<deployment spec>>
+    }
+}
+
+node "Firebase" as firebase {
+    component "Storage" as storage <<component>> {
+        [Firebase Storage] <<deployment spec>>
+    }
+}
+
+client --> server : HTTP GET/POST/PUT/DELETE
+backend --> db: <<use>>
+frontend --> backend : <<use>>
+frontend <-- backend : <<manifest>>
+backend --> storage : Upload/Download fajlova
+@enduml

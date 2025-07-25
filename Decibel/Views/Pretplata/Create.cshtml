@@ -1,0 +1,136 @@
+﻿@model List<Decibel.Models.Pretplata>
+
+@{
+    ViewData["Title"] = "Dostupne pretplate";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-4 dark-card">
+        <div class="card-header text-white text-center py-4 dark-header">
+            <h2 class="mb-0">Odaberite pretplatu</h2>
+        </div>
+        <div class="card-body">
+            @if (Model == null || !Model.Any())
+            {
+                <div class="alert alert-warning text-center dark-alert">
+                    <strong>⚠ Trenutno nema dostupnih pretplata.</strong>
+                </div>
+            }
+            else
+            {
+                <div class="row justify-content-center">
+                    @foreach (var pretplata in Model)
+                    {
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="subscription-card dark-subscription-card">
+                                <div class="card-header text-center text-white plan-title">
+                                    <h4 class="mb-0">@pretplata.naziv</h4>
+                                </div>
+                                <div class="card-body text-center">
+                                    <p class="plan-description">@pretplata.opis</p>
+                                    <h3 class="plan-price">@pretplata.cijena KM</h3>
+                                    <ul class="features-list">
+                                        <li>🎵 Neograničeno slušanje</li>
+                                        <li>📥 Offline preuzimanje</li>
+                                        <li>🔊 Visok kvalitet zvuka</li>
+                                        <li>🚫 Bez reklama</li>
+                                    </ul>
+                                    <form method="post" asp-action="Plati">
+                                        <input type="hidden" name="pretplataId" value="@pretplata.ID" />
+                                        <button type="submit" class="btn plan-button">💳 Plati sada</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<style>
+    .dark-card {
+        background: #181818;
+        border-radius: 12px;
+        box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease-in-out;
+        overflow: hidden;
+        border: 2px solid #333;
+    }
+
+    .dark-header {
+        background-color: #1c1c1c;
+    }
+
+    .plan-title {
+        background-color: #1c1c1c;
+        padding: 15px;
+        border-bottom: 2px solid #444;
+    }
+
+    .plan-description {
+        font-size: 1rem;
+        color: #bbb;
+        margin-bottom: 15px;
+    }
+
+    .plan-price {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #f1f1f1;
+    }
+
+    .features-list {
+        list-style: none;
+        padding: 0;
+        margin: 15px 0;
+    }
+
+        .features-list li {
+            padding: 8px;
+            font-size: 1rem;
+            color: #ddd;
+        }
+
+    .plan-button {
+        background-color: #333;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 30px;
+        font-size: 1rem;
+        font-weight: bold;
+        transition: 0.3s ease-in-out;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+        .plan-button:hover {
+            background-color: #444;
+            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+    .dark-alert {
+        background-color: #333;
+        color: #f1f1f1;
+        border: 1px solid #444;
+    }
+
+    .dark-subscription-card {
+        background-color: #222;
+        border-radius: 12px;
+        border: 2px solid #333;
+        transition: transform 0.3s ease-in-out;
+    }
+
+        .dark-subscription-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0px 15px 35px rgba(0, 0, 0, 0.4);
+        }
+</style>

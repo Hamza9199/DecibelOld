@@ -1,0 +1,16 @@
+﻿@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+    var korisnikID = UserManager.GetUserId(HttpContextAccessor.HttpContext.User);
+
+}
+<ul class="nav nav-pills flex-column">
+    <li class="nav-item"><a class="ajax-link nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">Profil</a></li>
+    <li class="nav-item"><a class="ajax-link nav-link @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-page="./Email">Email</a></li>
+    <li class="nav-item"><a class="ajax-link nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-page="./ChangePassword">Šifra</a></li>
+    <li class="nav-item"><a class="ajax-link nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData">Personalni Podaci</a></li>
+    <li class="nav-item"><a class="ajax-link nav-link" href="/Korisnik/PrijavaIzvodaca/@korisnikID">Prijava za Izvođača</a></li>
+
+</ul>

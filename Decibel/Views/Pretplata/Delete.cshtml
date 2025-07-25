@@ -1,0 +1,94 @@
+﻿@model Decibel.Models.Pretplata
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<div class="container mt-5">
+
+<h1>Delete</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Pretplata</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.naziv)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.naziv)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.opis)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.opis)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.cijena)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.cijena)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.dostupno)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.dostupno)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.kreiranDatumVrijeme)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.kreiranDatumVrijeme)
+        </dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="ID" />
+        <button type="submit" class="btn btn-danger plan-button">Delete</button> |
+        <a hrefn="Details/1" class="btn btn-secondary">Nazad na Pregled</a>
+    </form>
+</div>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<style>
+    .plan-button {
+        background-color: #dc3545;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 30px;
+        font-size: 1rem;
+        font-weight: bold;
+        transition: 0.3s ease-in-out;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+        .plan-button:hover {
+            background-color: #c82333;
+            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 30px;
+        font-size: 1rem;
+        font-weight: bold;
+        transition: 0.3s ease-in-out;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+</style>

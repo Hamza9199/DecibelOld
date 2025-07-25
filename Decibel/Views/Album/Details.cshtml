@@ -1,0 +1,14 @@
+﻿@model Decibel.ViewModels.PjesmaListaViewModel
+
+@{
+    ViewData["Title"] = "Details";
+    ViewData["TipListe"] = "Album";
+}
+
+
+<div>
+    <h1>Album</h1>
+
+    @await Html.PartialAsync("_PjesmaPartialView", Model)
+</div>
+

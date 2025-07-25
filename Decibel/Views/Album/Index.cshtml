@@ -1,0 +1,8 @@
+﻿@model IEnumerable<Decibel.ViewModels.PlayListaViewModel>
+
+@{
+    ViewData["ListType"] = "/Album/Details/";
+}   
+
+@await Html.PartialAsync("_PlayListaPartialView", Model)
+

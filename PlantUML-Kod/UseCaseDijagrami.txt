@@ -1,0 +1,36 @@
+@startuml
+left to right direction
+actor Korisnik
+actor Izvodjac
+actor Admin as "Sistemski Administrator"
+
+Korisnik <|-- Izvodjac
+
+rectangle Decibel {
+
+usecase Registracija as "Vrsi Registraciju i Login"
+usecase UpravljanjeRacuna as "Upravlja Računom"
+usecase UpravljanjePretplatom as "Upravlja Pretplatom"
+usecase Streaming as "Sluša Muziku (Streaming)"
+usecase Komentari as "Ostavlja Komentare"
+usecase InterakcijaMuzika as "Vrsi Interakciju sa Muzikom"
+usecase UpravljanjeMuzikom as "Upravlja svojom postavljenom Muzikom"
+usecase PregledMuzikePrije as "Pregleda Muziku prije Javne Objave"
+usecase PregledSvihKorisnika as "Pregleda Korisnicke Racune"
+usecase Statistika as "Pregleda Statistiku i Analitiku"
+
+Korisnik -- Registracija
+Korisnik -- UpravljanjeRacuna
+Korisnik -- UpravljanjePretplatom
+UpravljanjePretplatom .> (Eksterni API): <<includes>>
+Korisnik -- Streaming
+Korisnik -- InterakcijaMuzika: "Dodaje u Playliste, Stavlja 'Like'"
+Korisnik -- Komentari
+
+Izvodjac -- UpravljanjeMuzikom : "Postavlja i Ažurira"
+
+PregledMuzikePrije -- Admin
+PregledSvihKorisnika -- Admin
+Statistika -- Admin
+}
+@enduml

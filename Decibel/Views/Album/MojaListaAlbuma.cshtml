@@ -1,0 +1,223 @@
+﻿@model IEnumerable<Decibel.Models.Pjesma>
+
+@{
+    ViewData["Title"] = "Lista";
+
+    var songs = ViewData["Songs"] as List<Decibel.Models.Album> ?? new List<Decibel.Models.Album>();
+
+}
+
+<style>
+    .papa {
+        background-color: var(--boja-akcenat);
+        padding-right: 10px;
+        padding-left: 10px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        border-radius: 10px;
+    }
+
+    .spoj {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .boj {
+        background-color: var(--boja-akcenat);
+    }
+
+    .naslov {
+        margin-top: 30px;
+        margin-bottom: 40px;
+    }
+
+    #searchPjesma {
+        padding: 10px;
+        width: 100%;
+        border: none;
+        border-radius: 5px;
+    }
+
+
+
+
+    .search-bar {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+
+
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 0 auto;
+    }
+
+    .grid-item {
+        background-color: #1e1e1e;
+        padding: 15px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 290px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+        .grid-item:hover {
+            background-color: #2a2a2a;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .grid-item.selected {
+            background-color: #282828;
+            box-shadow: 0 4px 15px var(--boja-akcenat);
+        }
+
+        .grid-item img {
+            width: 250px;
+            height: 250px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .grid-item h5 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+    .actions {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-around;
+        gap: 20px;
+    }
+
+        .actions .btn {
+            margin: 5px;
+        }
+
+            .actions .btn:hover {
+                opacity: 0.8;
+            }
+
+
+
+
+    #pjesmeContainer, #albumiContainer {
+        display: none;
+    }
+
+    .btn {
+        border-radius: 5px;
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+</style>
+
+<h1 class="naslov">Moji Albumi</h1>
+
+
+<div id="pjesmeContainer2">
+    <div class="search-bar">
+        <input type="text" id="searchPjesma" placeholder="Pretraga pjesama" />
+    </div>
+    <div class="grid-container">
+        @foreach (var item in songs)
+        {
+            <div class="grid-item">
+                <img src="@item.putanjaSlika" href="/Album/Details/@item.ID" class="song-item ajax-link" data-id="@item.ID" data-naziv="@item.naziv" data-slika="@item.putanjaSlika" data-putanja-gif="@item.putanjaGif">
+                <h5>@item.naziv</h5>
+                <p>@item.opis</p>
+                <p><strong>Datum Objave:</strong> @item.kreiranDatumVrijeme</p>
+                <div class="actions">
+                    <button value="Obrisi" class="papa ajax-link" onclick="obrisi(event, '@item.ID')">Obrisi</button>
+
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+
+<script>
+
+    function filterPjesma(inputId, gridId) {
+        var input = document.getElementById(inputId).value.toLowerCase();
+        var cards = document.querySelectorAll("#" + gridId + " .grid-item");
+        cards.forEach(card => {
+            var name = card.querySelector("h5").innerText.toLowerCase();
+            card.style.display = name.includes(input) ? "block" : "none";
+        });
+    }
+
+
+    document.getElementById("searchPjesma").addEventListener("keyup", function() {
+        filterPjesma('searchPjesma', 'pjesmeContainer2');
+    });
+
+      async function obrisi(event, pjesmaID) {
+        event.preventDefault();
+        try {
+            let response = await fetch(`/api/AlbumControllerAPI/obrisi/${pjesmaID}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            let text = await response.text();
+
+            try {
+                var data = JSON.parse(text);
+            } catch (e) {
+                console.error("Odgovor nije validan JSON:", text);
+                throw new Error("Nevažeći JSON odgovor sa servera");
+            }
+
+            if (response.ok) {
+                alert("Zahtjev odobren!");
+                location.reload();
+            } else {
+                alert("Greška: " + data.message);
+            }
+        } catch (error) {
+            console.error("Greška:", error);
+        }
+    }
+
+
+
+
+
+
+
+</script>

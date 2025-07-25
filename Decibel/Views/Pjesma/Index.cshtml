@@ -1,0 +1,15 @@
+﻿@model Decibel.ViewModels.PjesmaListaViewModel
+
+@{
+    ViewData["Title"] = "Index";
+    ViewData["TipListe"] = "Sve";
+}
+<div>
+
+    <p>
+        <a class="ajax-link" asp-action="Create">Create New</a>
+    </p>
+
+    @await Html.PartialAsync("_PjesmaPartialView", Model)
+
+</div>

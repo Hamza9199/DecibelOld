@@ -1,0 +1,51 @@
+﻿@model Decibel.Models.KorisnikPretplata
+
+@{
+    ViewData["Title"] = "Kreiraj pretplatu";
+    var pretplate = ViewBag.Pretplate as List<Decibel.Models.Pretplata>;
+}
+
+<div class="container">
+    <h1 class="text-center text-light mb-4">Kupite pretplatu i uživajte u pogodnostima</h1>
+    <p class="text-center text-muted mb-4">Odaberite željenu pretplatu</p>
+
+   
+
+    <form asp-action="Create" method="post">
+        <input type="hidden" asp-for="korisnikID" value="@ViewBag.KorisnikID" />
+
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var pretplata in pretplate)
+            {
+                <div class="col">
+                    <div class="card shadow-lg border-0 rounded mb-4 bg-dark text-light">
+                        <div class="card-body text-center">
+                            <h5 class="bac2 card-title">@pretplata.naziv</h5>
+                            <p class="card-text">@pretplata.opis</p>
+                            <p class="card-text"><strong>Cijena:</strong>  @pretplata.cijena.ToString("F2") KM/mjesec</p>
+                            <div>
+                                <input type="radio" name="pretplataID" value="@pretplata.ID" required />
+                                <label class="ms-2">Odaberi</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="bac btn btn-success px-4 py-2 rounded-pill shadow-sm">✔ Kupi pretplatu</button>
+            <a href="/" class="btn btn-secondary px-4 py-2 rounded-pill shadow-sm">🔙 Povratak</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .bac{
+        background-color: var(--boja-akcenat);
+    }
+
+    .bac2 {
+       color: var(--boja-akcenat);
+    }
+</style>

@@ -1,0 +1,138 @@
+﻿@model IEnumerable<Decibel.Models.Korisnik>
+
+@{
+    ViewData["Title"] = "Korisnici";
+}
+
+<div class="playlists-container">
+
+    <h1 class="naslov">Izvođači koje pratim</h1>
+
+    <div class="search-bar">
+        <input type="text" id="search" placeholder="Pretraga korisnika" onkeyup="filterUsers()" />
+    </div>
+
+    <div class="users-grid" id="users-grid">
+        @foreach (var korisnik in Model)
+        {
+            <div class="user-card " href="/Korisnik/Details/@korisnik.ID">
+                <div class="user-avatar ajax-link" href="/Korisnik/Details/@korisnik.ID">
+                    <img src="@korisnik.putanjaProfilneSlike" alt="Profilna slika" />
+                </div>
+                <div class="user-info">
+                    <h3>@korisnik.ime @korisnik.prezime</h3>
+                    <p>@korisnik.bio</p>
+                    <p><strong>Broj pratilaca:</strong> @korisnik.brojPratilaca</p>
+                    <a class="btno" onclick="follow(event, '@korisnik.ID')">Otprati</a>
+
+                </div>
+            </div>
+        }
+    </div>
+
+</div>
+
+<style>
+
+    .btno {
+        display: inline-block;
+        color: white;
+        background: #333333;
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+
+    .naslov {
+        margin-bottom: 40px;
+    }
+
+    .search-bar {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    #search {
+        padding: 10px;
+        width: 100%;
+        border: none;
+        border-radius: 5px;
+    }
+
+    .users-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 23px;
+    }
+
+    .user-card {
+        overflow: hidden;
+        cursor: pointer;
+        text-align: start;
+        transition: 0.2s;
+        display: flex;
+        gap: 10px;
+        align-items: start;
+        justify-content: start;
+        flex-direction: column;
+    }
+
+        .user-card:hover {
+            background: var(--boja-akcenat);
+        }
+
+    .user-avatar img {
+        object-fit: cover;
+        width: auto;
+        height: 250px;
+        object-fit: contain;
+        background: black;
+        border-radius: 4px;
+        border-style: solid;
+        border-width: 1px;
+        border-color: rgb(82, 82, 82);
+    }
+
+    .user-info h3 {
+        margin: 0;
+        font-size: 1.2em;
+    }
+
+</style>
+
+<script>
+
+      async function follow(event, userId) {
+        event.preventDefault();
+        try {
+            let response = await fetch(`/api/KorisnikControllerAPI/unfollow/${userId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            let data = await response.json();
+            if (response.ok) {
+                alert("Otpraćen korisnik!");
+                location.reload();
+            } else {
+                alert("Greška: " + data.message);
+            }
+        } catch (error) {
+            console.error("Greška:", error);
+        }
+    }
+
+    function filterUsers() {
+        var input = document.getElementById("search").value.toLowerCase();
+        var cards = document.querySelectorAll(".users-grid .user-card");
+        cards.forEach(card => {
+            var name = card.querySelector(".user-info h3").innerText.toLowerCase();
+            card.style.display = name.includes(input) ? "block" : "none";
+        });
+    }
+</script>

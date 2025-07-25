@@ -1,0 +1,158 @@
+@startuml
+
+enum TipKorisnika {
+    Regularni
+    Izvodjac
+    Administrativni
+}
+
+enum TipNaloga {
+    Besplatan
+    Premium
+}
+
+enum KorisnikStatus {
+    Aktivan
+    Neaktivan
+    Suspendovan
+}
+
+enum PretplataStatus {
+    Aktivna
+    Neaktivna
+    Pauzirana
+    Istekla
+}
+
+class Album {
+    + Int64 : ID
+    + Int64 : korisnikID
+    + string : naziv
+    + string? : opis
+    + DateTime : datumKreiranja
+    + bool : odobreno
+    + bool : javno
+}
+
+class Komentar {
+    + Int64 : ID
+    + Int64 : korisnikID
+    + Int64 : pjesmaID
+    + string : tekst
+    + int : vrijemePjesmeSekunde
+    + DateTime : datumObjave
+}
+
+class Korisnik {
+    + Int64 : ID
+    + Int64? : pretplataID
+    + string : ime
+    + string : prezime
+    + string : email
+    + string : lozinika
+    + TipKorisnikaEnum : tipKorisnika
+    + TipNalogaEnum : tipNaloga
+    + KorisnikStatusEnum : statusKorisnika
+}
+
+class KorisnikPjesma {
+    + Int64 : korisnikPjesmaID
+    + Int64 : korisnikID
+    + Int64 : pjesmaID
+}
+
+class Pjesma {
+    + Int64 : ID
+    + Int64? : albumID
+    + Int64 : izvodjacID
+    + string : naziv
+    + string : opis
+    + DateOnly : datumObjave
+    + int : trajanjeSekunde
+    + bool : javno
+    + bool : odobreno
+}
+
+class PjesmaPlayLista {
+    + Int64 : ID
+    + Int64 : pjesmaID
+    + Int64 : playlistaID
+}
+
+class PjesmaZanr {
+    + Int64 : ID
+    + Int64 : pjesmaID
+    + Int64 : zanrID
+}
+
+class PlayLista {
+    + Int64 : ID
+    + Int64 : korisnikID
+    + string : naziv
+    + string? : opis
+    + DateTime : datumIVrijemeKreiranja
+    + bool : javno
+}
+
+class Pretplata {
+    + Int64 : ID
+    + float : cijena
+    + PretplataStatusEnum : PretplataStatus
+    + DateTime : datumIVrijemeKreiranja
+    + DateTime : datumIVrijemeObnove
+}
+
+class Zanr {
+    + Int64 : ID
+    + string : naziv
+}
+
+class ApplicationDbContext {
+    + DbSet<Korisnik> : Korisnik
+    + DbSet<Album> : Album
+    + DbSet<Komentar> : Komentar
+    + DbSet<Pjesma> : Pjesma
+    + DbSet<PlayLista> : PlayLista
+    + DbSet<Pretplata> : Pretplata
+    + DbSet<PjesmaPlayLista> : PjesmaPlaylista
+    + DbSet<KorisnikPjesma> : KorisnikPjesma
+    + DbSet<AlbumKorisnik> : AlbumKorisnik
+    + DbSet<Zanr> : Zanr
+    + DbSet<PjesmaZanr> : PjesmaZanr
+    ---
+    + OnModelCreating(modelBuilder : ModelBuilder)
+}
+
+Album "1" -- "0..*" Pjesma : "Jedna Pjesma pripada samo jednom Albumu. Album ima vise pjesama."
+Album "0..*" -- "1" Korisnik : "Korisnik[Tip: Izvodjac] Je Kreator Albuma"
+Komentar "0..*" -- "1" Pjesma
+Korisnik "1" -- "0..*" Komentar
+Korisnik "1" -- "0..*" PlayLista
+Korisnik "1" -- "0..*" KorisnikPjesma : "Predstavlja 'Liked Tracks'"
+Korisnik "1" -- "0..1" Pretplata : "Korisnik ima 1 ili 0 Pretplata"
+KorisnikPjesma "1" -- "0..*" Pjesma
+Pjesma "1" -- "0..*" PjesmaPlayLista
+Pjesma "0..*" -- "1" PjesmaZanr
+PlayLista "1" -- "0..*" PjesmaPlayLista
+PjesmaZanr "1" -- "0..*" Zanr
+
+Album --* ApplicationDbContext
+Komentar --* ApplicationDbContext
+Korisnik --* ApplicationDbContext
+KorisnikPjesma --* ApplicationDbContext
+PlayLista --* ApplicationDbContext
+PjesmaZanr --* ApplicationDbContext
+Zanr --* ApplicationDbContext
+Pjesma --* ApplicationDbContext
+Pretplata --* ApplicationDbContext
+PjesmaPlayLista --* ApplicationDbContext
+
+class KorisnikController {
+    - _context : ApplicationDbContext
+    ---
+    + GetKorisnik : IEnumerable<Korisnik>
+}
+
+ApplicationDbContext --* KorisnikController
+
+@enduml

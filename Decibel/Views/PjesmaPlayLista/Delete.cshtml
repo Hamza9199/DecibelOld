@@ -1,0 +1,52 @@
+﻿@model Decibel.Models.PjesmaPlayLista
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>PjesmaPlayLista</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.kreiranDatumVrijeme)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.kreiranDatumVrijeme)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Pjesma)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Pjesma.ID)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.PlayLista)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.PlayLista.ID)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.sljedecaPjesma)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.sljedecaPjesma.ID)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.prethodnaPjesma)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.prethodnaPjesma.ID)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="pjesmaID" />
+        <input type="hidden" asp-for="playlistaID" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>

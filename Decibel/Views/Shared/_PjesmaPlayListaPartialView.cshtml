@@ -1,0 +1,380 @@
+﻿@using System.Data
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@model Decibel.ViewModels.PjesmaListaViewModel
+
+@{
+    var listaTip = ViewData["TipListe"]?.ToString();
+    ViewData["SelectedTrackId"] = null;
+
+    string context = "";
+
+    context = "/Pjesma";
+
+    if (listaTip == "Album")
+    {
+        context = "/Album/Details/" + Model.ID;
+    }
+    else if (listaTip == "PlayLista")
+    {
+        context = "/PjesmaPlayLista/PjesmaPlayLista/" + Model.ID;
+    }
+
+}
+
+<h1>@(ViewData["Ime"])</h1>
+
+<div>
+    <div class="list-container">
+    <div class="btn-group" role="group" aria-label="Basic example">
+        <a style="border-radius: 100px; padding: 6px !important;" class="m-2 btn btn-secondary ajax-link ajax-link-no-push" href="/PjesmaPlayLista/PjesmaPlayLista/@ViewData["PlaylistaID"]"><i style="color: black;" class="fa-solid fa-arrows-rotate"></i></a>
+    </div>
+        <table class="song-list">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Naziv</th>
+                    <th>Izvođači</th>
+                    <th>Album</th>
+                    <th>Datum Dodano</th>
+                    <th>Trajanje</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="sortable-song-list">
+                @foreach (var pjesma in Model.Pjesme.Select((val, index) => new { val, index }))
+                {
+                    <tr data-song-id="@pjesma.val.ID" draggable="true" class="row-pjesma">
+                        <td style="cursor: pointer;" class="id-pjesma-index" data-pjesma-id="@pjesma.val.ID" context="@context" class="id-pjesme" context-tip="@(ViewData["KontekstTip"])"><code class="play-button play-button-id" data-pjesma-id="@pjesma.val.ID">@(pjesma.index + 1)</code><i style="display: none;" class="fa-solid fa-play play-tipka-pjesma"></i></td>
+                        <td>
+                            <a id="pjesma-partial-naziv"><img src="@pjesma.val.putanjaSlika" class="cover" id="cover" data-pjesma-id="@pjesma.val.ID" context="@context" context-tip="@(ViewData["KontekstTip"])"></a>
+
+                            @if (pjesma.val.eksplicitniSadrzaj)
+                            {
+                                <span class="explicit fw-bolder">E</span>
+                            }
+
+                            <a class="ajax-link fw-bold" href="/Pjesma/Details/@(pjesma.val.ID)">@pjesma.val.naziv</a>
+                        </td>
+                        <td>
+                            @if (pjesma.val.Izvodjaci != null && pjesma.val.Izvodjaci.Any())
+                            {
+                                var izvodjaciLinks = string.Join(", ", pjesma.val.Izvodjaci.Select(izvodjac =>
+                                $"<a class=\"ajax-link\" href=\"/Korisnik/Details/{izvodjac.ID}\">{izvodjac.korisnickoIme}</a>"));
+
+                                @Html.Raw(izvodjaciLinks)
+                            }
+                            else
+                            {
+                                <span>Bez Izvođača</span>
+                            }
+                        </td>
+
+                        @if (listaTip != "Album")
+                        {
+                            <td>
+                                @if (pjesma.val.albumID != null)
+                                {
+                                    <a class="ajax-link" href="/Album/Details/@(pjesma.val.albumID)">@(pjesma.val.albumIme)</a>
+                                }
+                                else
+                                {
+                                    <a>NA</a>
+                                }
+                            </td>
+                            <td><code>@pjesma.val.datumDodano.ToString()</code></td>
+                        }
+
+                        <td><code>@pjesma.val.trajanje</code></td>
+                        <td>
+                            <a class="dodaj-button"
+                               data-toggle="modal"
+                               data-target="#exampleModal"
+                               data-pjesma-id="@pjesma.val.ID"
+                               onclick="setSelectedTrackId(@pjesma.val.ID)">
+                                <i class="fa-solid fa-plus"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a data-pjesma-id="@pjesma.val.ID"
+                               class="ajax-link"
+                               href="/PjesmaPlayLista/ObrisiPjesmu/@(pjesma.val.ID)/@(ViewData["PlaylistaID"])">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </td>
+                        @{
+                            var likeStil = pjesma.val.lajkovana ? "fa-solid" : "fa-regular";
+                            var actionUrl = pjesma.val.lajkovana
+                            ? Url.Action("ObrisiPjesmuIzOmiljenih", "KorisnikPjesma", new { id = pjesma.val.ID, returnUrl = Context.Request.Path.ToString() })
+                            : Url.Action("DodajPjesmuUOmiljene", "KorisnikPjesma", new { id = pjesma.val.ID, returnUrl = Context.Request.Path.ToString() });
+                        }
+
+                        <td>
+                            <a class="like-button ajax-link"
+                               href="@actionUrl"
+                               data-liked="@pjesma.val.lajkovana"
+                               data-song-id="@pjesma.val.ID">
+                                <i class="@likeStil fa-heart"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @await Html.PartialAsync("_ModalPartialView", Model.PlayListe)
+    </div>
+</div>
+
+
+<style>
+    #pjesma-partial-naziv {
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .list-container {
+        overflow-x: auto;
+        background-image: url("/");
+        transition: 0.5s;
+    }
+
+    .song-list {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+        .song-list th,
+        .song-list td {
+            padding: 2px 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .song-list thead th {
+            color: #888888;
+        }
+
+        .song-list tbody a {
+            color: var(--main-text-boja);
+            text-decoration: none;
+        }
+
+            .song-list tbody a:hover {
+                text-decoration: underline;
+            }
+
+        .song-list tbody tr:hover {
+            background-color: #333333;
+        }
+
+    .song-list-selected {
+        background-color: #333333;
+    }
+
+    .cover {
+        height: 50px;
+        width: 50px;
+        margin-right: 10px;
+        vertical-align: middle;
+        border-radius: 4px;
+        border-style: solid;
+        border-width: 1px;
+        border-color: rgb(82, 82, 82);
+    }
+
+
+    .like-button:hover, .dodaj-button:hover {
+        color: var(--boja-akcenat);
+    }
+
+
+    .song-list td:nth-child(1), th:nth-child(1) {
+        border-top-left-radius: 10px;
+        padding-left: 20px;
+        border-bottom-left-radius: 10px;
+    }
+
+    .song-list td:nth-child(9), th:nth-child(9) {
+        border-top-right-radius: 10px;
+        padding-right: 20px;
+        border-bottom-right-radius: 10px;
+    }
+
+    .song-list td:nth-child(2),
+    .song-list td:nth-child(3),
+    .song-list td:nth-child(4) {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 150px;
+    }
+
+    .fallback {
+        width: 50px;
+        height: 50px;
+        background-color: black;
+        display: inline-block;
+    }
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<script>
+        (function() {
+
+            const sortableElement = document.getElementById("sortable-song-list");
+
+            if (sortableElement) {
+                new Sortable(sortableElement, {
+                    animation: 150,
+                    onEnd: async function (evt) {
+                        const songElements = Array.from(evt.from.children);
+                        const songOrder = songElements.map(row => row.dataset.songId);
+
+                        const movedSongID = evt.item.dataset.songId;
+                        const previousSongID =
+                            evt.newIndex === 0 ? null : songElements[evt.newIndex - 1]?.dataset.songId;
+
+                        console.log('Moved Song ID:', movedSongID);
+                        console.log('Previous Song ID:', previousSongID);
+
+
+
+                        if (previousSongID === null) {
+                            await premjestiNaPocetak(movedSongID, @ViewData["PlaylistaID"]);
+                        } else {
+                            await promjeniRedoslijed(movedSongID, previousSongID, @ViewData["PlaylistaID"]);
+                        }
+                    },
+                });
+            } else {
+                console.error("Element with ID 'sortable-song-list' not found.");
+            }
+
+
+            const slike = document.querySelectorAll('.cover');
+
+            let prethodnoSelektovaniTr = null; // Sprema trenutno selektovani <tr>
+
+            slike.forEach(s =>
+            {
+                s.addEventListener('click', async (event) =>
+                {
+                    const pjesmaID = event.target.getAttribute('data-pjesma-id');
+
+                    const najbliziTr = event.target.closest("tr");
+
+                    const contextURL = event.target.getAttribute('context');
+
+                    const context = event.target.getAttribute('context-tip');
+
+                    // Ako postoji prethodno selektovani <tr>, ukloni klasu
+                    if (prethodnoSelektovaniTr && prethodnoSelektovaniTr !== najbliziTr)
+                    {
+                        prethodnoSelektovaniTr.classList.remove("song-list-selected");
+                    }
+
+                    // Dodaj klasu novom selektovanom <tr>
+                    najbliziTr.classList.add("song-list-selected");
+
+                    // Postavi trenutni <tr> kao prethodno selektovani
+                    prethodnoSelektovaniTr = najbliziTr;
+
+                    // Fetch podaci o pjesmi
+                    const response = await fetch(`/PjesmaPlayLista/GetPjesmaPlayListaViewModel/@(Model.ID)/${pjesmaID}`);
+
+                    if (!response.ok)
+                    {
+                        throw new Error(`Nije pronađena pjesma: ${response.status} ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+
+                    console.log(data);
+
+                    promjeniPjesmu(data.putanjaAudio, data.putanjaSlika, data.putanjaGIF, data.naziv, data.izvodjaci, pjesmaID, data.lajkovana, context, contextURL, data.prev, data.next, @(Model.ID));
+                });
+            });
+
+
+            const ids = document.querySelectorAll('.id-pjesma-index');
+
+            ids.forEach(s =>
+            {
+                s.addEventListener('click', async (event) =>
+                {
+                    const pjesmaID = event.target.getAttribute('data-pjesma-id');
+
+                    const najbliziTr = event.target.closest("tr");
+
+                    const contextURL = event.target.getAttribute('context');
+
+                    const context = event.target.getAttribute('context-tip');
+
+                    // Ako postoji prethodno selektovani <tr>, ukloni klasu
+                    if (prethodnoSelektovaniTr && prethodnoSelektovaniTr !== najbliziTr)
+                    {
+                        prethodnoSelektovaniTr.classList.remove("song-list-selected");
+                    }
+
+                    // Dodaj klasu novom selektovanom <tr>
+                    najbliziTr.classList.add("song-list-selected");
+
+                    // Postavi trenutni <tr> kao prethodno selektovani
+                    prethodnoSelektovaniTr = najbliziTr;
+
+                    // Fetch podaci o pjesmi
+                    const response = await fetch(`/PjesmaPlayLista/GetPjesmaPlayListaViewModel/@(Model.ID)/${pjesmaID}`);
+
+                    if (!response.ok)
+                    {
+                        throw new Error(`Nije pronađena pjesma: ${response.status} ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+
+                    console.log(data);
+
+                    promjeniPjesmu(data.putanjaAudio, data.putanjaSlika, data.putanjaGIF, data.naziv, data.izvodjaci, pjesmaID, data.lajkovana, context, contextURL, data.prev, data.next, @(Model.ID));
+                });
+            });
+
+    const rows = document.querySelectorAll('.row-pjesma');
+
+            rows.forEach(r => {
+                r.addEventListener('mouseenter',
+                    (e) => {
+                        const id = r.querySelector('.play-button-id');
+
+                        id.style.display = `none`;
+
+                        const tipka = r.querySelector('.play-tipka-pjesma');
+
+                        tipka.style.display = `initial`;
+
+
+                    });
+
+                r.addEventListener('mouseleave',
+                    (e) => {
+                        const id = r.querySelector('.play-button-id');
+
+                        id.style.display = `initial`;
+
+                        const tipka = r.querySelector('.play-tipka-pjesma');
+
+                        tipka.style.display = `none`;
+
+
+                    });
+
+            });
+
+
+
+                })();
+</script>
+
+

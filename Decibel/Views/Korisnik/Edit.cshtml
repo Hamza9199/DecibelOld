@@ -1,0 +1,74 @@
+﻿@model Decibel.Models.Korisnik
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Korisnik</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ID" />
+            <div class="form-group">
+                <label asp-for="ime" class="control-label"></label>
+                <input asp-for="ime" class="form-control" />
+                <span asp-validation-for="ime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="prezime" class="control-label"></label>
+                <input asp-for="prezime" class="form-control" />
+                <span asp-validation-for="prezime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="bio" class="control-label"></label>
+                <input asp-for="bio" class="form-control" />
+                <span asp-validation-for="bio" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="statusKorisnika" class="control-label"></label>
+                <select asp-for="statusKorisnika" class="form-control"></select>
+                <span asp-validation-for="statusKorisnika" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="putanjaProfilneSlike" class="control-label"></label>
+                <input asp-for="putanjaProfilneSlike" class="form-control" />
+                <span asp-validation-for="putanjaProfilneSlike" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="datumRegistracije" class="control-label"></label>
+                <input asp-for="datumRegistracije" class="form-control" />
+                <span asp-validation-for="datumRegistracije" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="zadnjaPrijava" class="control-label"></label>
+                <input asp-for="zadnjaPrijava" class="form-control" />
+                <span asp-validation-for="zadnjaPrijava" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="brojPratilaca" class="control-label"></label>
+                <input asp-for="brojPratilaca" class="form-control" />
+                <span asp-validation-for="brojPratilaca" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="obrisan" /> @Html.DisplayNameFor(model => model.obrisan)
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

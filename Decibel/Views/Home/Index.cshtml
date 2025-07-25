@@ -1,0 +1,312 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    var songs = ViewData["Songs"] as List<Decibel.Models.Pjesma> ?? new List<Decibel.Models.Pjesma>();
+    var playlist = ViewData["Playlists"] as List<Decibel.Models.PlayLista> ?? new List<Decibel.Models.PlayLista>();
+    var albumi = ViewData["Albums"] as List<Decibel.Models.Album> ?? new List<Decibel.Models.Album>();
+    var izvodaci = ViewData["Izvodaci"] as List<Decibel.Models.Korisnik> ?? new List<Decibel.Models.Korisnik>();
+}
+
+<style>
+
+    deca {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    p.lead {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        margin-top: 30px;
+    }
+
+    .lead2{
+        margin-bottom: 60px;
+    }
+
+    .btn-custom {
+        background-color: var(--boja-akcenat);
+        color: #ffffff;
+        padding: 12px 25px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: 0.3s;
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+
+        .btn-custom:hover {
+            background-color: var(--boja-akcenat);
+        }
+
+    .song-container {
+        display: flex;
+        overflow-x: auto;
+        gap: 15px;
+        padding: 20px;
+    }
+
+    .song-item {
+        background-color: #1e1e1e;
+        padding: 15px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 290px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+        .song-item:hover {
+            background-color: #2a2a2a;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .song-item.selected {
+            background-color: #282828;
+            box-shadow: 0 4px 15px var(--boja-akcenat);
+        }
+
+    .playlist-item {
+        background-color: #1e1e1e;
+        padding: 15px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 290px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+        .playlist-item:hover {
+            background-color: #2a2a2a;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .playlist-item.selected {
+            background-color: #282828;
+            box-shadow: 0 4px 15px var(--boja-akcenat);
+        }
+
+    .izvodac-item {
+        background-color: #1e1e1e;
+        padding: 15px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 290px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+        .izvodac-item:hover {
+            background-color: #2a2a2a;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .izvodac-item.selected {
+            background-color: #282828;
+            box-shadow: 0 4px 15px var(--boja-akcenat);
+        }
+
+    .album-item {
+        background-color: #1e1e1e;
+        padding: 15px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 290px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+        .album-item:hover {
+            background-color: #2a2a2a;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .album-item.selected {
+            background-color: #282828;
+            box-shadow: 0 4px 15px var(--boja-akcenat);
+        }
+
+    .cover {
+        width: 250px;
+        height: 250px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+
+    }
+
+    .cover2 {
+        width: 250px;
+        height: 250px;
+        border-radius: 150px;
+        margin-bottom: 10px;
+    }
+
+    .song-title {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+
+    .naslov {
+        text-align: left;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        margin-top: 50px;
+    }
+
+    .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom:70px;
+    }
+
+    .register-btn {
+        margin-left: auto;
+    }
+
+   
+    #search {
+        padding: 20px;
+        width: 100%;
+        border: none;
+        border-radius: 5px;
+    }
+</style>
+
+<div class=" ">
+    <div class="header-container">
+        <h1 class="deca">DECIBEL</h1>
+       
+
+        <a href="/Identity/Account/Register" class="btn btn-custom register-btn ajax-link">Pridruži se sada</a>
+    </div>
+
+   
+  
+
+    <h2 class="naslov">Najpopularnije pjesme</h2>
+    <div class="song-container" id="songContainer">
+        @foreach (var song in songs)
+        {
+            <div class="song-item" data-id="@song.ID" data-naziv="@song.naziv" data-slika="@song.putanjaSlika" data-putanja-audio="@song.putanjaAudio" data-putanja-gif="@song.putanjaGif">
+                <img src="@song.putanjaSlika" class="cover" >
+                <div class="song-title">@song.naziv</div>
+            </div>
+        }
+    </div>
+
+    <h2 class="naslov">Najpopularnije playliste</h2>
+    <div class="song-container">
+        @foreach (var song in playlist)
+        {
+            <div class="playlist-item ajax-link" href="/PlayLista/Details/@song.ID" data-id="@song.ID" data-naziv="@song.naziv" data-slika="@song.putanjaSlika" data-putanja-gif="@song.putanjaGif">
+                <img src="@song.putanjaSlika" class="cover">
+                <div class="song-title">@song.naziv</div>
+            </div>
+        }
+    </div>
+    <h2 class="naslov">Najpopularniji albumi</h2>
+    <div class="song-container">
+        @foreach (var song in albumi)
+        {
+            <div class="album-item ajax-link" href="/Album/Details/@song.ID" data-id="@song.ID" data-naziv="@song.naziv" data-slika="@song.putanjaSlika" data-putanja-gif="@song.putanjaGif">
+                <img src="@song.putanjaSlika" class="cover">
+                <div class="song-title">@song.naziv</div>
+            </div>
+        }
+    </div>
+    <h2 class="naslov">Najpopularniji izvođači</h2>
+    <div class="song-container">
+        @foreach (var song in izvodaci)
+        {
+            <div class="izvodac-item ajax-link" href="/Korisnik/Details/@song.ID" data-id="@song.ID" data-naziv="@song.korisnickoIme" data-slika="@song.putanjaProfilneSlike" data-ime="@song.ime" >
+                <img src="@song.putanjaProfilneSlike" class="cover2">
+                <div class="song-title">@song.korisnickoIme</div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+
+     
+
+        (function() {
+        const songItems = document.querySelectorAll(".song-item");
+        let selectedSong = null;
+        const playlistItems = document.querySelectorAll(".playlist-item");
+        let selectedPlaylist = null;
+        const izvodacItems = document.querySelectorAll(".izvodac-item");
+        let selectedIzvodac = null;
+        const albumItems = document.querySelectorAll(".album-item");
+        let selectedAlbum = null;
+
+        songItems.forEach(item => {
+            item.addEventListener("click", async () => {
+                if (selectedSong) {
+                    selectedSong.classList.remove("selected");
+                }
+                item.classList.add("selected");
+                selectedSong = item;
+
+                const pjesmaID = item.getAttribute("data-id");
+                try {
+                    const response = await fetch(`/Pjesma/GetPjesmaViewModel/${pjesmaID}`);
+                    if (!response.ok) {
+                        throw new Error(`Greška pri učitavanju pjesme: ${response.status} - ${response.statusText}`);
+                    }   
+                    const data = await response.json();
+                    console.log(data);
+                    promjeniPjesmu(data.putanjaAudio, data.putanjaSlika, data.putanjaGif, data.naziv, data.izvodjaci, pjesmaID, data.lajkovana, context, contextURL);
+                } catch (error) {
+                    console.error("Fetch error:", error);
+                }
+            });
+        });
+
+        playlistItems.forEach(item => {
+            item.addEventListener("click", () => {
+                if (selectedPlaylist) {
+                    selectedPlaylist.classList.remove("selected");
+                }
+                item.classList.add("selected");
+                selectedPlaylist = item;
+            });
+        });
+
+        izvodacItems.forEach(item => {
+            item.addEventListener("click", () => {
+                if (selectedIzvodac) {
+                    selectedIzvodac.classList.remove("selected");
+                }
+                item.classList.add("selected");
+                selectedIzvodac = item;
+            });
+        });
+
+        albumItems.forEach(item => {
+            item.addEventListener("click", () => {
+                if (selectedAlbum) {
+                    selectedAlbum.classList.remove("selected");
+                }
+                item.classList.add("selected");
+                selectedAlbum = item;
+            });
+        });
+    })();
+
+</script>
